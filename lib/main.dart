@@ -1,3 +1,7 @@
+import 'package:billd_live_flutter/views/home/home.dart';
+import 'package:billd_live_flutter/views/rank/rank.dart';
+import 'package:billd_live_flutter/views/area/area.dart';
+import 'package:billd_live_flutter/views/user/user.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -5,6 +9,7 @@ void main() {
 }
 
 const appTitle = 'billd直播';
+const themeColor = Color.fromRGBO(255, 215, 0, 1);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -12,12 +17,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, //右上角的debug信息
       title: appTitle,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
+          colorScheme: ColorScheme.fromSeed(seedColor: themeColor),
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent
+          // primaryColor: Colors.red,
+          ),
       home: const NavBarWidget(),
     );
   }
@@ -39,63 +46,39 @@ class NavBarState extends State<NavBarWidget> {
     return Scaffold(
       appBar: AppBar(title: const Text(appTitle)),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-              icon: Image.asset(
-                'assets/images/home.png',
-                width: 20,
-                height: 20,
-              ),
-              label: '首页'),
-          BottomNavigationBarItem(
-              icon: Image.asset(
-                'assets/images/tag.png',
-                width: 20,
-                height: 20,
-              ),
-              label: '分类'),
-          BottomNavigationBarItem(
-              icon: Image.asset(
-                'assets/images/trophy.png',
-                width: 20,
-                height: 20,
-              ),
-              label: '排行'),
-          // BottomNavigationBarItem(
-          //     icon: Image.asset(
-          //       'assets/images/user.png',
-          //       width: 20,
-          //       height: 20,
-          //     ),
-          //     label: '我的'),
-        ],
-        currentIndex: _currentIndex,
-        onTap: (int index) {
-          _currentIndex = index;
-          // print(index);
-        },
-        // selectedFontSize: 20,
-        // unselectedFontSize: 10,
+          items: [
+            createBarItem('home', '首页'),
+            createBarItem('rank', '排行'),
+            createBarItem('area', '分区'),
+            createBarItem('user', '我的'),
+          ],
+          currentIndex: _currentIndex,
+          onTap: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          selectedFontSize: 14,
+          unselectedFontSize: 14,
+          selectedItemColor: themeColor),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: const [Home(), Rank(), Area(), User()],
       ),
     );
   }
 }
 
-class HomeWidget extends StatelessWidget {
-  const HomeWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-          title: const Text(
-        appTitle,
-      )),
-      body: Column(children: [
-        const Text('hello'),
-        Image.network(
-            'https://resource.hsslive.cn/image/9218d742cac57c00428e94fb7784ad32.jpg')
-      ]),
-    );
-  }
+BottomNavigationBarItem createBarItem(String iconName, String lable) {
+  return BottomNavigationBarItem(
+      icon: Image.asset(
+        "assets/images/tabbar/$iconName.png",
+        width: 20,
+      ),
+      activeIcon: Image.asset(
+        "assets/images/tabbar/${iconName}_active.png",
+        width: 20,
+      ),
+      label: lable);
 }
