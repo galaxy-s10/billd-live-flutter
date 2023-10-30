@@ -9,10 +9,13 @@ class HttpRequest {
       connectTimeout: const Duration(seconds: timeout), baseUrl: baseUrl);
   static Dio dio = Dio(baseOptions);
 
-  static Future<Response> get() async {
+  static Future get(url, {Map<String, dynamic>? params}) async {
     try {
-      Response resp =
-          await dio.request('/live/list', options: Options(method: 'get'));
+      var resp = await dio.request(url,
+          queryParameters: params,
+          options: Options(
+            method: 'get',
+          ));
       return resp;
     } catch (e) {
       rethrow;

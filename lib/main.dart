@@ -48,8 +48,8 @@ class NavBarState extends State<NavBarWidget> {
       bottomNavigationBar: BottomNavigationBar(
           items: [
             createBarItem('home', '首页'),
-            createBarItem('rank', '排行'),
             createBarItem('area', '分区'),
+            createBarItem('rank', '排行'),
             createBarItem('user', '我的'),
           ],
           currentIndex: _currentIndex,
@@ -64,7 +64,7 @@ class NavBarState extends State<NavBarWidget> {
           selectedItemColor: themeColor),
       body: IndexedStack(
         index: _currentIndex,
-        children: const [Home(), Rank(), Area(), User()],
+        children: const [Home(), Area(), Rank(), User()],
       ),
     );
   }

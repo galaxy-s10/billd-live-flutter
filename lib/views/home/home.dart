@@ -12,7 +12,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('首页22')),
+      appBar: AppBar(title: const Text('首页')),
       body: const HomeBody(),
     );
   }
@@ -35,8 +35,6 @@ class HomeBodyState extends State<HomeBody> {
 
   getList() async {
     // HttpRequest.get().then((v) {
-    var res = await HttpRequest.get();
-    print(res.data['code']);
 
     // Map<String, dynamic> a = {"age": 19, "name": false};
     // Map<String, LiveItem> b = {"age": LiveItem()};
