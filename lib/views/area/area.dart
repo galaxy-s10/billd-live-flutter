@@ -1,5 +1,5 @@
 import 'package:billd_live_flutter/api/area_api.dart';
-import 'package:billd_live_flutter/api/request.dart';
+import 'package:billd_live_flutter/views/area/area_item.dart';
 import 'package:flutter/material.dart';
 
 class Area extends StatelessWidget {
@@ -41,7 +41,19 @@ class AreaBodyState extends State<AreaBody> {
 
   @override
   Widget build(BuildContext context) {
-    // initState();
-    return Text(list.length.toString());
+    // return Text(list.length.toString());
+    return ListView.builder(
+        itemCount: 2,
+        itemBuilder: (context, index) {
+          print('3333${list["rows"]}');
+          print('${list[index]}');
+          if (list.length != 0) {
+            // print('331111${list}');
+            // print('3333${list["rows"]}');
+            print('11${list["rows"][index]}');
+            return AreaItemWidget(list["rows"][index]);
+          }
+          // return AreaItemWidget(list[index]);
+        });
   }
 }
