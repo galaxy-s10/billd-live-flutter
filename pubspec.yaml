@@ -37,6 +37,8 @@ dependencies:
 
   dio: ^5.3.3
 
+  flutter_webrtc: ^0.9.46
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

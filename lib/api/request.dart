@@ -21,4 +21,17 @@ class HttpRequest {
       rethrow;
     }
   }
+
+  static Future post(url, {Map<String, dynamic>? data}) async {
+    try {
+      var resp = await dio.request(url,
+          data: data,
+          options: Options(
+            method: 'post',
+          ));
+      return resp;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
