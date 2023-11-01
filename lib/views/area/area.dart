@@ -31,9 +31,9 @@ class AreaBodyState extends State<AreaBody> {
 
   getList() async {
     var res = await AreaApi.getAreaAreaLiveRoomList();
-    print(res.data);
-    print(res.data.runtimeType);
-    print(res.data['data'].runtimeType);
+    print('getListgetList');
+    print(res.data['data']['total']);
+    print(res.data['data']['rows'].length);
     setState(() {
       list = res.data['data'];
     });
@@ -43,17 +43,12 @@ class AreaBodyState extends State<AreaBody> {
   Widget build(BuildContext context) {
     // return Text(list.length.toString());
     return ListView.builder(
-        itemCount: 2,
+        itemCount: list['total'],
         itemBuilder: (context, index) {
-          print('3333${list["rows"]}');
-          print('${list[index]}');
-          if (list.length != 0) {
-            // print('331111${list}');
-            // print('3333${list["rows"]}');
-            print('11${list["rows"][index]}');
+          if (list.isNotEmpty) {
             return AreaItemWidget(list["rows"][index]);
           }
-          // return AreaItemWidget(list[index]);
+          return null;
         });
   }
 }
