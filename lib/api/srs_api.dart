@@ -10,7 +10,7 @@ class SRSApi {
           'clientip': null,
           'sdp': sdp,
           'streamurl': streamurl,
-          tid: tid
+          'tid': tid
         });
     print(res);
     print('k322');

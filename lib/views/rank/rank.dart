@@ -1,29 +1,20 @@
-import 'package:billd_live_flutter/api/srs_api.dart';
+import 'package:billd_live_flutter/models/webrtc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:core';
 
-void handleStart() async {
-  var pc = await createPeerConnection({
-    'iceServers': [
-      {
-        'urls': 'turn:hsslive.cn:3478',
-        'username': 'hss',
-        'credential': '123456',
-      },
-      // {
-      //   'urls': 'stun:stun.l.google.com:19302',
-      // },
-    ]
-  });
-  var offer = await pc.createOffer();
-  var srsres = await SRSApi.getRtcV1Publish(
-      api: '/rtc/v1/publish/',
-      sdp: offer.sdp,
-      streamurl:
-          'rtmp://localhost/livestream/roomId___11?token=6f98374da063bc509998e51b7c1a80e2&type=2',
-      tid: 'dsgsg');
-  print(srsres);
-  print('pc222');
+requestPermissions() async {
+  var camerastatus = await Permission.camera.status;
+  if (camerastatus.isDenied) {
+    print('没有camera权限');
+    var res1 = await Permission.camera.request();
+  }
+  var microphonestatus = await Permission.microphone.status;
+  if (microphonestatus.isDenied) {
+    print('没有microphone权限');
+    Permission.microphone.request();
+  }
 }
 
 class Rank extends StatelessWidget {
@@ -31,7 +22,19 @@ class Rank extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    handleStart();
-    return Scaffold(appBar: AppBar(title: const Text('排行')));
+    return Scaffold(
+        appBar: AppBar(title: const Text('排行')),
+        body: Column(children: [
+          InkWell(
+            child: const Text(
+              'dd322',
+            ),
+            onTap: () {
+              print('333');
+            },
+          ),
+          WebRTCWidget(),
+          // const Text('ddd'),
+        ]));
   }
 }

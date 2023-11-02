@@ -7,9 +7,9 @@ class AreaItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('-lllll-');
-    print(item);
-    print('-lllll-');
+    // print('-lllll-');
+    // print(item);
+    // print('-lllll-');
     // return Text(item['name']);
     return Container(
       padding: const EdgeInsets.all(10),
@@ -30,8 +30,8 @@ class AreaItemWidget extends StatelessWidget {
                 var str =
                     (item['area_live_rooms'][index]['live_room']['cover_img']);
                 if (str != null) {
-                  print(str);
-                  print('99999');
+                  // print(str);
+                  // print('99999');
                   str = str.split(',')[1];
                 }
                 return Row(

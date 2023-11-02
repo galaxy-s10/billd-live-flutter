@@ -31,9 +31,9 @@ class AreaBodyState extends State<AreaBody> {
 
   getList() async {
     var res = await AreaApi.getAreaAreaLiveRoomList();
-    print('getListgetList');
-    print(res.data['data']['total']);
-    print(res.data['data']['rows'].length);
+    // print('getListgetList');
+    // print(res.data['data']['total']);
+    // print(res.data['data']['rows'].length);
     setState(() {
       list = res.data['data'];
     });
