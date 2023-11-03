@@ -1,8 +1,11 @@
+import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/views/home/home.dart';
+import 'package:billd_live_flutter/views/live/rank.dart';
 import 'package:billd_live_flutter/views/rank/rank.dart';
 import 'package:billd_live_flutter/views/area/area.dart';
 import 'package:billd_live_flutter/views/user/user.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +19,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false, //右上角的debug信息
       title: appTitle,
       theme: ThemeData(
@@ -40,32 +43,41 @@ class NavBarWidget extends StatefulWidget {
 }
 
 class NavBarState extends State<NavBarWidget> {
+  final Controller store = Get.put(Controller());
   var _currentIndex = 0;
   @override
   Widget build(BuildContext context) {
+    EdgeInsets padding = MediaQuery.paddingOf(context);
+    store.setSafeHeight(padding.top);
     return Scaffold(
-      appBar: AppBar(title: const Text(appTitle)),
-      bottomNavigationBar: BottomNavigationBar(
-          items: [
-            createBarItem('home', '首页'),
-            createBarItem('area', '分区'),
-            createBarItem('rank', '排行'),
-            createBarItem('user', '我的'),
-          ],
-          currentIndex: _currentIndex,
-          onTap: (int index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          selectedFontSize: 14,
-          unselectedFontSize: 14,
-          selectedItemColor: themeColor),
-      body: IndexedStack(
+      // appBar: AppBar(title: const Text(appTitle)),
+      bottomNavigationBar: Visibility(
+          visible: store.bottomNavVisible.isTrue,
+          child: BottomNavigationBar(
+              items: [
+                createBarItem('home', '首页'),
+                createBarItem('area', '分区'),
+                createBarItem('rank', '排行'),
+                createBarItem('user', '我的'),
+              ],
+              currentIndex: _currentIndex,
+              onTap: (int index) {
+                setState(() {
+                  _currentIndex = index;
+                  // if (index == 2) {
+                  //   store.setBottomNavVisible(false);
+                  // }
+                });
+              },
+              type: BottomNavigationBarType.fixed,
+              selectedFontSize: 14,
+              unselectedFontSize: 14,
+              selectedItemColor: themeColor)),
+      body: SafeArea(
+          child: IndexedStack(
         index: _currentIndex,
-        children: const [Home(), Area(), Rank(), User()],
-      ),
+        children: const [Home(), Area(), Rank(), User(), Live()],
+      )),
     );
   }
 }

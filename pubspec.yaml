@@ -41,6 +41,14 @@ dependencies:
 
   flutter_webrtc: ^0.9.46
 
+  bruno: ^3.4.2
+
+  get: ^4.6.6
+
+  carousel_slider: ^4.2.1
+
+  video_player: ^2.8.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

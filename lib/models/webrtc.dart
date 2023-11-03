@@ -1,6 +1,7 @@
 import 'package:billd_live_flutter/api/srs_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:bruno/bruno.dart';
 
 class WebRTCWidget extends StatefulWidget {
   const WebRTCWidget({super.key});
@@ -12,7 +13,7 @@ class WebRTCWidget extends StatefulWidget {
 class RTCState extends State<WebRTCWidget> {
   RTCVideoRenderer? localRenderer;
   RTCPeerConnection? pc;
-
+  bool showIcon = true;
   handleOffer() async {
     pc!.addTransceiver(
       kind: RTCRtpMediaType.RTCRtpMediaTypeVideo,
@@ -32,10 +33,7 @@ class RTCState extends State<WebRTCWidget> {
           streamurl:
               'rtmp://localhost/livestream/roomId___11?token=6f98374da063bc509998e51b7c1a80e2&type=2',
           tid: '4335455');
-      print(srsres);
-      print(srsres.data['code']);
-      print('kkk123lll');
-      return srsres.data['data']['sdp'];
+      return srsres['data']['sdp'];
     } catch (e) {
       print(e);
       print('offer失败');
@@ -43,8 +41,6 @@ class RTCState extends State<WebRTCWidget> {
   }
 
   handleAnswer(sdp) async {
-    print(sdp);
-    print('oooooooooooooo');
     try {
       await pc!.setRemoteDescription(RTCSessionDescription(sdp, 'answer'));
       print('设置远程描述成功');
@@ -105,7 +101,17 @@ class RTCState extends State<WebRTCWidget> {
           ),
           onTap: () {
             print('开始了');
-            handleInit();
+            BrnDialogManager.showSingleButtonDialog(context,
+                barrierDismissible: false,
+                label: "确定",
+                title: '提示',
+                warning: '错误', onTap: () {
+              setState(() {
+                print('kkk');
+                Navigator.pop(context);
+              });
+            });
+            // handleInit();
           },
         ),
         Container(

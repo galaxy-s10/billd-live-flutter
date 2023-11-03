@@ -7,9 +7,9 @@ class Area extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('分区')),
-      body: const AreaBody(),
+    return const Scaffold(
+      // appBar: AppBar(title: const Text('分区')),
+      body: AreaBody(),
     );
   }
 }
@@ -35,13 +35,12 @@ class AreaBodyState extends State<AreaBody> {
     // print(res.data['data']['total']);
     // print(res.data['data']['rows'].length);
     setState(() {
-      list = res.data['data'];
+      list = res['data'];
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // return Text(list.length.toString());
     return ListView.builder(
         itemCount: list['total'],
         itemBuilder: (context, index) {
