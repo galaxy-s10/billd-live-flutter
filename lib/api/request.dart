@@ -4,7 +4,8 @@ import 'package:dio/dio.dart';
 
 // const baseUrl = 'https://api.hsslive.cn/prodapi/';
 // const baseUrl = 'https://live-api.hsslive.cn';
-const baseUrl = 'http://192.168.1.44:4300';
+// const baseUrl = 'http://192.168.1.44:4300';
+const baseUrl = 'http://192.168.1.102:4300';
 const timeout = 5;
 
 class HttpRequest {

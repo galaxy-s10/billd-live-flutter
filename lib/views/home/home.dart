@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:billd_live_flutter/api/live_api.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
+import 'dart:ui' as ui;
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -27,73 +30,117 @@ class HomeBody extends StatefulWidget {
 class HomeBodyState extends State<HomeBody> {
   final Controller store = Get.put(Controller());
   var livedata = {};
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
+  int currentItemIndex = 0;
+  double aspectRatio = 1.0;
+  var memoryImage;
 
   @override
   initState() {
     super.initState();
     getData();
-    // play(livedata['rows'][itemIndex]['live_room']['hls_url']);
-    play('');
   }
 
   getData() async {
     var res = await LiveApi.getLiveList();
-    print(res);
     if (res['code'] == 200) {
+      play(res['data']['rows'][0]['live_room']['hls_url']);
+      var str = res['data']['rows'][0]['live_room']['cover_img'];
+      if (str != null) {
+        str = str.split(',')[1];
+      }
+      var imageBytes = base64.decode(str);
       setState(() {
         livedata = res['data'];
+        memoryImage = MemoryImage(imageBytes);
       });
     }
   }
 
-  play(url) {
-    print(url);
-    print('urlllllll');
-    _controller = VideoPlayerController.networkUrl(
-      Uri.parse(url),
-      // Uri.parse('https://srs-pull.hsslive.cn/livestream/roomId___12.m3u8'),
-    )..initialize().then((_) {
-        print('初始化完成');
-        _controller.play();
-      });
+  play(String url) async {
+    String newurl = url.replaceAll('localhost', '192.168.1.102');
+    var res = VideoPlayerController.networkUrl(Uri.parse(newurl),
+        videoPlayerOptions: VideoPlayerOptions());
+    await res.initialize();
+    await res.play();
+    setState(() {
+      _controller = res;
+      aspectRatio = res.value.aspectRatio;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    double height =
+        size.height - kBottomNavigationBarHeight - store.safeHeight.value;
     return Container(
-        color: Colors.red,
+        decoration: memoryImage != null
+            ? BoxDecoration(
+                image: DecorationImage(
+                image: memoryImage,
+                fit: BoxFit.cover,
+              ))
+            : const BoxDecoration(color: Colors.black),
         width: size.width,
-        height:
-            size.height - kBottomNavigationBarHeight - store.safeHeight.value,
-        // child: Text('32'),
-        child: CarouselSlider.builder(
-          itemCount: livedata.isNotEmpty ? livedata['total'] : 0,
-          itemBuilder:
-              (BuildContext context, int itemIndex, int pageViewIndex) {
-            print(itemIndex);
-            print('kkkkk');
-            play(livedata['rows'][itemIndex]['live_room']['hls_url']);
-            if (livedata['rows'] != null) {
-              print(livedata['rows']);
-              print(livedata['rows'][0]);
-              return Center(
-                  child: AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                child: VideoPlayer(_controller),
-              ));
-            }
-            return Container();
-          },
-          options: CarouselOptions(
-            height: 400,
-            autoPlay: false,
-            enlargeCenterPage: true,
-            viewportFraction: 0.9,
-            aspectRatio: 2.0,
-            scrollDirection: Axis.vertical,
-            autoPlayAnimationDuration: const Duration(milliseconds: 300),
+        height: height,
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0), // 设置模糊效果的程度
+            child: CarouselSlider.builder(
+              itemCount: livedata.isNotEmpty ? livedata['total'] : 0,
+              itemBuilder:
+                  (BuildContext context, int itemIndex, int pageViewIndex) {
+                if (_controller != null &&
+                    livedata['rows'] != null &&
+                    currentItemIndex == itemIndex) {
+                  return Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: AspectRatio(
+                          aspectRatio: aspectRatio,
+                          child: VideoPlayer(_controller!),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(
+                            livedata['rows'][itemIndex]['live_room']['name'],
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14),
+                          ),
+                        ),
+                      )
+                    ],
+                  );
+                }
+                return Container();
+              },
+              options: CarouselOptions(
+                  height: height,
+                  autoPlay: false,
+                  enlargeCenterPage: false,
+                  viewportFraction: 1,
+                  scrollDirection: Axis.vertical,
+                  autoPlayAnimationDuration: const Duration(milliseconds: 300),
+                  onPageChanged: (index, reason) async {
+                    await play(livedata['rows'][index]['live_room']['hls_url']);
+                    var str = livedata['rows'][index]['live_room']['cover_img'];
+                    if (str != null) {
+                      str = str.split(',')[1];
+                    }
+                    var imageBytes = base64.decode(str);
+                    setState(() {
+                      currentItemIndex = index;
+                      memoryImage = MemoryImage(imageBytes);
+                    });
+                  }),
+            ),
           ),
         ));
   }
