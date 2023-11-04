@@ -21,8 +21,9 @@ class Live extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     requestPermissions();
-    return const Scaffold(
+    return const SafeArea(
+        child: Scaffold(
       body: WebRTCWidget(),
-    );
+    ));
   }
 }

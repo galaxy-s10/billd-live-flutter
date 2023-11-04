@@ -95,12 +95,9 @@ class RTCState extends State<WebRTCWidget> {
     // handleInit();
     return Column(
       children: [
-        InkWell(
-          child: const Text(
-            '直播',
-          ),
+        BrnBigGhostButton(
+          title: '开始直播',
           onTap: () {
-            print('开始了');
             BrnDialogManager.showSingleButtonDialog(context,
                 barrierDismissible: false,
                 label: "确定",
@@ -111,7 +108,6 @@ class RTCState extends State<WebRTCWidget> {
                 Navigator.pop(context);
               });
             });
-            // handleInit();
           },
         ),
         Container(

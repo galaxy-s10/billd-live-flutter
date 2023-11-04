@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
 class Controller extends GetxController {
-  var count = 0.obs;
+  var tabIndex = 0.obs;
   var token = ''.obs;
   var userInfo = {}.obs;
   var bottomNavVisible = true.obs;
@@ -11,5 +11,5 @@ class Controller extends GetxController {
   setUserInfo(val) => userInfo.value = val;
   setBottomNavVisible(val) => bottomNavVisible.value = val;
   setSafeHeight(val) => safeHeight.value = val;
-  increment() => count++;
+  setTabIndex(val) => tabIndex.value = val;
 }

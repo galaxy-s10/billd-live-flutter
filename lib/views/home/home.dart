@@ -9,22 +9,25 @@ import 'package:video_player/video_player.dart';
 import 'dart:ui' as ui;
 
 class Home extends StatelessWidget {
-  const Home({super.key});
+  Home(this.currentIndex, {super.key});
+  var currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    print('33ddddddd');
+    return Scaffold(
       // appBar: AppBar(title: const Text('首页')),
-      body: HomeBody(),
+      body: HomeBody(currentIndex),
     );
   }
 }
 
 class HomeBody extends StatefulWidget {
-  const HomeBody({super.key});
+  HomeBody(this.currentIndex, {super.key});
+  var currentIndex = 0;
 
   @override
-  State<StatefulWidget> createState() => HomeBodyState();
+  State<StatefulWidget> createState() => HomeBodyState(currentIndex);
 }
 
 class HomeBodyState extends State<HomeBody> {
@@ -33,7 +36,10 @@ class HomeBodyState extends State<HomeBody> {
   VideoPlayerController? _controller;
   int currentItemIndex = 0;
   double aspectRatio = 1.0;
+
   var memoryImage;
+
+  HomeBodyState(int currentIndex);
 
   @override
   initState() {
@@ -41,16 +47,24 @@ class HomeBodyState extends State<HomeBody> {
     getData();
   }
 
+  // @override
+  // dispose() {
+  //   print('disposedispose');
+  //   super.dispose();
+  // }
+
   getData() async {
     var res = await LiveApi.getLiveList();
     if (res['code'] == 200) {
-      play(res['data']['rows'][0]['live_room']['hls_url']);
+      var res1 = await play(res['data']['rows'][0]['live_room']['hls_url']);
       var str = res['data']['rows'][0]['live_room']['cover_img'];
       if (str != null) {
         str = str.split(',')[1];
       }
       var imageBytes = base64.decode(str);
       setState(() {
+        _controller = res1;
+        aspectRatio = res1.value.aspectRatio;
         livedata = res['data'];
         memoryImage = MemoryImage(imageBytes);
       });
@@ -58,19 +72,29 @@ class HomeBodyState extends State<HomeBody> {
   }
 
   play(String url) async {
+    if (_controller != null) {
+      await _controller!.dispose();
+      _controller = null;
+    }
     String newurl = url.replaceAll('localhost', '192.168.1.102');
     var res = VideoPlayerController.networkUrl(Uri.parse(newurl),
         videoPlayerOptions: VideoPlayerOptions());
     await res.initialize();
     await res.play();
-    setState(() {
-      _controller = res;
-      aspectRatio = res.value.aspectRatio;
-    });
+    return res;
   }
 
   @override
   Widget build(BuildContext context) {
+    if (store.tabIndex.value != 0 && _controller != null) {
+      _controller!.dispose();
+      _controller = null;
+    } else {
+      if (livedata.length != 0 && currentItemIndex != null) {
+        // print('kkkkkkk');
+        // play(livedata['rows'][currentItemIndex]['live_room']['hls_url']);
+      }
+    }
     final size = MediaQuery.of(context).size;
     double height =
         size.height - kBottomNavigationBarHeight - store.safeHeight.value;
@@ -129,13 +153,16 @@ class HomeBodyState extends State<HomeBody> {
                   scrollDirection: Axis.vertical,
                   autoPlayAnimationDuration: const Duration(milliseconds: 300),
                   onPageChanged: (index, reason) async {
-                    await play(livedata['rows'][index]['live_room']['hls_url']);
+                    var res = await play(
+                        livedata['rows'][index]['live_room']['hls_url']);
                     var str = livedata['rows'][index]['live_room']['cover_img'];
                     if (str != null) {
                       str = str.split(',')[1];
                     }
                     var imageBytes = base64.decode(str);
                     setState(() {
+                      _controller = res;
+                      aspectRatio = res.value.aspectRatio;
                       currentItemIndex = index;
                       memoryImage = MemoryImage(imageBytes);
                     });

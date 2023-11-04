@@ -45,6 +45,7 @@ class NavBarWidget extends StatefulWidget {
 class NavBarState extends State<NavBarWidget> {
   final Controller store = Get.put(Controller());
   var _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     EdgeInsets padding = MediaQuery.paddingOf(context);
@@ -62,6 +63,8 @@ class NavBarState extends State<NavBarWidget> {
               ],
               currentIndex: _currentIndex,
               onTap: (int index) {
+                store.setTabIndex(index);
+                print('ddddddd,${index}');
                 setState(() {
                   _currentIndex = index;
                   // if (index == 2) {
@@ -76,7 +79,7 @@ class NavBarState extends State<NavBarWidget> {
       body: SafeArea(
           child: IndexedStack(
         index: _currentIndex,
-        children: const [Home(), Area(), Rank(), User(), Live()],
+        children: [Home(_currentIndex), Area(), Rank(), User(), Live()],
       )),
     );
   }
