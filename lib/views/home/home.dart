@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:billd_live_flutter/api/live_api.dart';
+import 'package:billd_live_flutter/main.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,6 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('33ddddddd');
     return Scaffold(
       // appBar: AppBar(title: const Text('首页')),
       body: HomeBody(currentIndex),
@@ -47,27 +47,24 @@ class HomeBodyState extends State<HomeBody> {
     getData();
   }
 
-  // @override
-  // dispose() {
-  //   print('disposedispose');
-  //   super.dispose();
-  // }
-
   getData() async {
     var res = await LiveApi.getLiveList();
     if (res['code'] == 200) {
-      var res1 = await play(res['data']['rows'][0]['live_room']['hls_url']);
-      var str = res['data']['rows'][0]['live_room']['cover_img'];
-      if (str != null) {
-        str = str.split(',')[1];
+      var first = res['data']['rows'][0];
+      if (first != null) {
+        var res1 = await play(first['live_room']['hls_url']);
+        var str = first['live_room']['cover_img'];
+        if (str != null) {
+          str = str.split(',')[1];
+        }
+        var imageBytes = base64.decode(str);
+        setState(() {
+          _controller = res1;
+          aspectRatio = res1.value.aspectRatio;
+          livedata = res['data'];
+          memoryImage = MemoryImage(imageBytes);
+        });
       }
-      var imageBytes = base64.decode(str);
-      setState(() {
-        _controller = res1;
-        aspectRatio = res1.value.aspectRatio;
-        livedata = res['data'];
-        memoryImage = MemoryImage(imageBytes);
-      });
     }
   }
 
@@ -76,7 +73,7 @@ class HomeBodyState extends State<HomeBody> {
       await _controller!.dispose();
       _controller = null;
     }
-    String newurl = url.replaceAll('localhost', '192.168.1.102');
+    String newurl = url.replaceAll('localhost', localIp);
     var res = VideoPlayerController.networkUrl(Uri.parse(newurl),
         videoPlayerOptions: VideoPlayerOptions());
     await res.initialize();

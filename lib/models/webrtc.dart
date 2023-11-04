@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:billd_live_flutter/api/srs_api.dart';
+import 'package:billd_live_flutter/main.dart';
+import 'package:billd_live_flutter/stores/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:bruno/bruno.dart';
+import 'package:get/get.dart' as get_x;
 
 class WebRTCWidget extends StatefulWidget {
   const WebRTCWidget({super.key});
@@ -14,6 +19,8 @@ class RTCState extends State<WebRTCWidget> {
   RTCVideoRenderer? localRenderer;
   RTCPeerConnection? pc;
   bool showIcon = true;
+  final Controller store = get_x.Get.put(Controller());
+
   handleOffer() async {
     pc!.addTransceiver(
       kind: RTCRtpMediaType.RTCRtpMediaTypeVideo,
@@ -26,13 +33,21 @@ class RTCState extends State<WebRTCWidget> {
     try {
       var offer = await pc!.createOffer({});
       await pc!.setLocalDescription(offer);
+      var liveRoomInfo = store.userInfo['live_rooms'][0];
       print('offer成功');
+      String newurl = liveRoomInfo['rtmp_url'];
+      String streamurl = '${newurl}?token=${liveRoomInfo['key']}&type=2';
+      print(streamurl);
+      print('推流地址');
       var srsres = await SRSApi.getRtcV1Publish(
           api: '/rtc/v1/publish/',
           sdp: offer.sdp,
-          streamurl:
-              'rtmp://localhost/livestream/roomId___11?token=6f98374da063bc509998e51b7c1a80e2&type=2',
+          streamurl: streamurl,
           tid: '4335455');
+      if (srsres['data']['code'] == 400) {
+        BrnToast.show('推流错误', context);
+        return;
+      }
       return srsres['data']['sdp'];
     } catch (e) {
       print(e);
@@ -57,10 +72,7 @@ class RTCState extends State<WebRTCWidget> {
     });
     stream.getTracks().forEach((track) async {
       await pc?.addTrack(track, stream);
-      // print(track);
     });
-    print(stream.getTracks().length);
-    print('========');
     setState(() {
       localRenderer!.srcObject = stream;
     });
@@ -87,41 +99,92 @@ class RTCState extends State<WebRTCWidget> {
     });
     await handleStream();
     var sdp = await handleOffer();
-    handleAnswer(sdp);
+    if (sdp != null) {
+      handleAnswer(sdp);
+    } else {
+      BrnToast.show('offer错误', context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     // handleInit();
-    return Column(
-      children: [
-        BrnBigGhostButton(
-          title: '开始直播',
-          onTap: () {
-            BrnDialogManager.showSingleButtonDialog(context,
-                barrierDismissible: false,
-                label: "确定",
-                title: '提示',
-                warning: '错误', onTap: () {
-              setState(() {
-                print('kkk');
-                Navigator.pop(context);
-              });
-            });
-          },
+
+    Future<bool> BrnDialog() {
+      Completer<bool> completer = Completer<bool>();
+
+      BrnDialogManager.showConfirmDialog(context,
+          title: "提示",
+          cancel: '取消',
+          confirm: '确定',
+          message: "是否退出直播？", onConfirm: () {
+        completer.complete(true);
+        Navigator.pop(context, true);
+      }, onCancel: () {
+        completer.complete(false);
+        Navigator.pop(context, false);
+      });
+
+      // 返回Future对象
+      return completer.future;
+    }
+
+    return WillPopScope(
+        child: Column(
+          children: [
+            BrnBigGhostButton(
+              title: '开始直播',
+              onTap: () {
+                handleInit();
+                // BrnDialogManager.showSingleButtonDialog(context,
+                //     barrierDismissible: false,
+                //     label: "确定",
+                //     title: '提示',
+                //     warning: '错误', onTap: () {
+                //   setState(() {
+                //     Navigator.pop(context);
+                //   });
+                // });
+              },
+            ),
+            Container(
+              height: 300,
+              width: 300,
+              color: Colors.red,
+              child: localRenderer != null
+                  ? RTCVideoView(
+                      localRenderer!,
+                      // mirror: true,
+                    )
+                  : null,
+            )
+          ],
         ),
-        Container(
-          height: 300,
-          width: 300,
-          color: Colors.red,
-          child: localRenderer != null
-              ? RTCVideoView(
-                  localRenderer!,
-                  // mirror: true,
-                )
-              : null,
-        )
-      ],
-    );
+        onWillPop: () async {
+          print('onWillPoponWillPop');
+          // BrnDialogManager.showConfirmDialog(context,
+          //     title: "标题内容",
+          //     cancel: '取消',
+          //     confirm: '确定',
+          //     message: "辅助内容信息辅助内容信息辅助内容信息辅助内容信息辅助内容信息。");
+          return await BrnDialog();
+          return await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('确认退出'),
+              content: Text('确定要退出应用吗？'),
+              actions: [
+                TextButton(
+                  child: Text('取消'),
+                  onPressed: () => Navigator.pop(context, false),
+                ),
+                TextButton(
+                  child: Text('确定'),
+                  onPressed: () => Navigator.pop(context, true),
+                ),
+              ],
+            ),
+          );
+        });
   }
 }

@@ -11,6 +11,7 @@ void main() {
   runApp(const MyApp());
 }
 
+const localIp = '192.168.1.102';
 const appTitle = 'billd直播';
 const themeColor = Color.fromRGBO(255, 215, 0, 1);
 
@@ -64,7 +65,6 @@ class NavBarState extends State<NavBarWidget> {
               currentIndex: _currentIndex,
               onTap: (int index) {
                 store.setTabIndex(index);
-                print('ddddddd,${index}');
                 setState(() {
                   _currentIndex = index;
                   // if (index == 2) {
