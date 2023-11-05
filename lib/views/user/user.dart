@@ -14,7 +14,8 @@ class User extends StatefulWidget {
 
 class UserBodyState extends State<User> {
   int? id = 101;
-  String? password = 'nDfg8noO';
+  // String? password = 'nDfg8noO';//测试密码
+  String? password = '12345666';
   bool isLogin = false;
   @override
   Widget build(BuildContext context) {

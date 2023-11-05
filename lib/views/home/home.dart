@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:billd_live_flutter/api/live_api.dart';
 import 'package:billd_live_flutter/main.dart';
 import 'package:billd_live_flutter/stores/app.dart';
+import 'package:bruno/bruno.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -50,35 +51,43 @@ class HomeBodyState extends State<HomeBody> {
   getData() async {
     var res = await LiveApi.getLiveList();
     if (res['code'] == 200) {
-      var first = res['data']['rows'][0];
-      if (first != null) {
+      List<dynamic> rows = res['data']['rows'];
+      if (rows.isNotEmpty) {
+        var first = rows[0];
         var res1 = await play(first['live_room']['hls_url']);
-        var str = first['live_room']['cover_img'];
-        if (str != null) {
-          str = str.split(',')[1];
+        if (res1 != null) {
+          var str = first['live_room']['cover_img'];
+          if (str != null) {
+            str = str.split(',')[1];
+          }
+          var imageBytes = base64.decode(str);
+          setState(() {
+            _controller = res1;
+            aspectRatio = res1.value.aspectRatio;
+            livedata = res['data'];
+            memoryImage = MemoryImage(imageBytes);
+          });
         }
-        var imageBytes = base64.decode(str);
-        setState(() {
-          _controller = res1;
-          aspectRatio = res1.value.aspectRatio;
-          livedata = res['data'];
-          memoryImage = MemoryImage(imageBytes);
-        });
       }
     }
   }
 
   play(String url) async {
-    if (_controller != null) {
-      await _controller!.dispose();
-      _controller = null;
+    try {
+      if (_controller != null) {
+        await _controller!.dispose();
+        _controller = null;
+      }
+      String newurl = url.replaceAll('localhost', localIp);
+      var res = VideoPlayerController.networkUrl(Uri.parse(newurl),
+          videoPlayerOptions: VideoPlayerOptions());
+      await res.initialize();
+      await res.play();
+      return res;
+    } catch (e) {
+      print(e);
+      BrnToast.show('播放错误', context);
     }
-    String newurl = url.replaceAll('localhost', localIp);
-    var res = VideoPlayerController.networkUrl(Uri.parse(newurl),
-        videoPlayerOptions: VideoPlayerOptions());
-    await res.initialize();
-    await res.play();
-    return res;
   }
 
   @override
@@ -86,11 +95,6 @@ class HomeBodyState extends State<HomeBody> {
     if (store.tabIndex.value != 0 && _controller != null) {
       _controller!.dispose();
       _controller = null;
-    } else {
-      if (livedata.length != 0 && currentItemIndex != null) {
-        // print('kkkkkkk');
-        // play(livedata['rows'][currentItemIndex]['live_room']['hls_url']);
-      }
     }
     final size = MediaQuery.of(context).size;
     double height =
@@ -152,17 +156,20 @@ class HomeBodyState extends State<HomeBody> {
                   onPageChanged: (index, reason) async {
                     var res = await play(
                         livedata['rows'][index]['live_room']['hls_url']);
-                    var str = livedata['rows'][index]['live_room']['cover_img'];
-                    if (str != null) {
-                      str = str.split(',')[1];
+                    if (res != null) {
+                      var str =
+                          livedata['rows'][index]['live_room']['cover_img'];
+                      if (str != null) {
+                        str = str.split(',')[1];
+                      }
+                      var imageBytes = base64.decode(str);
+                      setState(() {
+                        _controller = res;
+                        aspectRatio = res.value.aspectRatio;
+                        currentItemIndex = index;
+                        memoryImage = MemoryImage(imageBytes);
+                      });
                     }
-                    var imageBytes = base64.decode(str);
-                    setState(() {
-                      _controller = res;
-                      aspectRatio = res.value.aspectRatio;
-                      currentItemIndex = index;
-                      memoryImage = MemoryImage(imageBytes);
-                    });
                   }),
             ),
           ),

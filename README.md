@@ -10,3 +10,9 @@ Tools • Dart 3.1.4 • DevTools 2.25.0
 Dart SDK version: 3.1.4 (stable) (Tue Oct 17 14:55:53 2023 +0000) on "macos_arm64"
 ➜  billd-live-flutter git:(master) ✗
 ```
+
+# 打包
+
+```sh
+flutter build apk --release
+```

@@ -13,6 +13,12 @@ requestPermissions() async {
     print('没有microphone权限');
     await Permission.microphone.request();
   }
+  var ignoreBatteryOptimizationsstatus =
+      await Permission.ignoreBatteryOptimizations.status;
+  if (ignoreBatteryOptimizationsstatus.isDenied) {
+    print('没有ignoreBatteryOptimizationsstatus权限');
+    await Permission.ignoreBatteryOptimizations.request();
+  }
 }
 
 class Live extends StatelessWidget {

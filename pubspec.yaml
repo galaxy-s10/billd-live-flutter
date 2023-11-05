@@ -49,6 +49,10 @@ dependencies:
 
   video_player: ^2.8.1
 
+  flutter_background: ^1.2.0
+
+  flutter_launcher_icons: ^0.13.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -64,6 +68,11 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+
+flutter_launcher_icons:
+  android: 'launcher_icon'
+  image_path: 'assets/billd.jpeg'
+
 flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

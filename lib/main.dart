@@ -8,10 +8,26 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 void main() {
+  // Future<bool> startForegroundService() async {
+  //   final androidConfig = FlutterBackgroundAndroidConfig(
+  //     notificationTitle: 'Title of the notification',
+  //     notificationText: 'Text of the notification',
+  //     notificationImportance: AndroidNotificationImportance.Default,
+  //     notificationIcon: AndroidResource(
+  //         name: 'background_icon',
+  //         defType: 'drawable'), // Default is ic_launcher from folder mipmap
+  //   );
+  //   await FlutterBackground.initialize(androidConfig: androidConfig);
+  //   return FlutterBackground.enableBackgroundExecution();
+  // }
+
+  // WidgetsFlutterBinding.ensureInitialized();
+
+  // startForegroundService();
   runApp(const MyApp());
 }
 
-const localIp = '192.168.1.102';
+const localIp = '192.168.1.103';
 const appTitle = 'billd直播';
 const themeColor = Color.fromRGBO(255, 215, 0, 1);
 
