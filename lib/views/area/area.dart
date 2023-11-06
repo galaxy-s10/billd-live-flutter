@@ -1,5 +1,6 @@
 import 'package:billd_live_flutter/api/area_api.dart';
 import 'package:billd_live_flutter/views/area/area_item.dart';
+
 import 'package:flutter/material.dart';
 
 class Area extends StatelessWidget {
@@ -7,10 +8,7 @@ class Area extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      // appBar: AppBar(title: const Text('分区')),
-      body: AreaBody(),
-    );
+    return const AreaBody();
   }
 }
 
@@ -25,6 +23,7 @@ class AreaBodyState extends State<AreaBody> {
   Map<String, dynamic> list = {};
   @override
   initState() {
+    print('initState-area');
     super.initState();
     getList();
   }

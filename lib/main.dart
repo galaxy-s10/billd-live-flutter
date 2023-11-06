@@ -4,32 +4,17 @@ import 'package:billd_live_flutter/views/live/rank.dart';
 import 'package:billd_live_flutter/views/rank/rank.dart';
 import 'package:billd_live_flutter/views/area/area.dart';
 import 'package:billd_live_flutter/views/user/user.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-void main() {
-  // Future<bool> startForegroundService() async {
-  //   final androidConfig = FlutterBackgroundAndroidConfig(
-  //     notificationTitle: 'Title of the notification',
-  //     notificationText: 'Text of the notification',
-  //     notificationImportance: AndroidNotificationImportance.Default,
-  //     notificationIcon: AndroidResource(
-  //         name: 'background_icon',
-  //         defType: 'drawable'), // Default is ic_launcher from folder mipmap
-  //   );
-  //   await FlutterBackground.initialize(androidConfig: androidConfig);
-  //   return FlutterBackground.enableBackgroundExecution();
-  // }
-
-  // WidgetsFlutterBinding.ensureInitialized();
-
-  // startForegroundService();
-  runApp(const MyApp());
-}
 
 const localIp = '192.168.1.103';
 const appTitle = 'billd直播';
 const themeColor = Color.fromRGBO(255, 215, 0, 1);
+
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -83,9 +68,6 @@ class NavBarState extends State<NavBarWidget> {
                 store.setTabIndex(index);
                 setState(() {
                   _currentIndex = index;
-                  // if (index == 2) {
-                  //   store.setBottomNavVisible(false);
-                  // }
                 });
               },
               type: BottomNavigationBarType.fixed,
@@ -95,7 +77,13 @@ class NavBarState extends State<NavBarWidget> {
       body: SafeArea(
           child: IndexedStack(
         index: _currentIndex,
-        children: [Home(_currentIndex), Area(), Rank(), User(), Live()],
+        children: [
+          Home(_currentIndex),
+          const Area(),
+          const Rank(),
+          const User(),
+          const Live()
+        ],
       )),
     );
   }

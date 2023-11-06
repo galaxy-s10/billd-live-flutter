@@ -1,8 +1,9 @@
 import 'package:billd_live_flutter/api/user_api.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/views/live/rank.dart';
-import 'package:bruno/bruno.dart';
+
 import 'package:flutter/material.dart';
+import 'package:bruno/bruno.dart';
 import 'package:get/get.dart';
 
 class User extends StatefulWidget {

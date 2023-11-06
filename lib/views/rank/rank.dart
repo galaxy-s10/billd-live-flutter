@@ -5,6 +5,6 @@ class Rank extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Text('排行'));
+    return const Text('排行');
   }
 }

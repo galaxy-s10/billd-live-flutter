@@ -1,14 +1,16 @@
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:billd_live_flutter/api/live_api.dart';
 import 'package:billd_live_flutter/main.dart';
 import 'package:billd_live_flutter/stores/app.dart';
+
+import 'package:flutter/material.dart';
+
 import 'package:bruno/bruno.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
-import 'dart:ui' as ui;
 
 class Home extends StatelessWidget {
   Home(this.currentIndex, {super.key});
@@ -16,10 +18,7 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // appBar: AppBar(title: const Text('首页')),
-      body: HomeBody(currentIndex),
-    );
+    return HomeBody(currentIndex);
   }
 }
 
@@ -44,6 +43,7 @@ class HomeBodyState extends State<HomeBody> {
 
   @override
   initState() {
+    print('initState-home');
     super.initState();
     getData();
   }
