@@ -3,6 +3,8 @@ import 'package:billd_live_flutter/views/area/area_item.dart';
 
 import 'package:flutter/material.dart';
 
+late BuildContext gcontext; //全局变量 由内部 WidgetsBinding赋值
+
 class Area extends StatelessWidget {
   const Area({super.key});
 
@@ -21,21 +23,29 @@ class AreaBody extends StatefulWidget {
 
 class AreaBodyState extends State<AreaBody> {
   Map<String, dynamic> list = {};
+
   @override
   initState() {
-    print('initState-area');
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 在Widget构建完成后执行代码
+      BuildContext gcontext = context;
+      // 在这里可以使用context
+      print('Context: $context');
+    });
+    print('initState-area');
     getList();
   }
 
   getList() async {
-    var res = await AreaApi.getAreaAreaLiveRoomList();
-    // print('getListgetList');
-    // print(res.data['data']['total']);
-    // print(res.data['data']['rows'].length);
-    setState(() {
-      list = res['data'];
-    });
+    try {
+      var res = await AreaApi.getAreaAreaLiveRoomList();
+      setState(() {
+        list = res['data'];
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override

@@ -56,11 +56,7 @@ class HomeBodyState extends State<HomeBody> {
         var first = rows[0];
         var res1 = await play(first['live_room']['hls_url']);
         if (res1 != null) {
-          var str = first['live_room']['cover_img'];
-          if (str != null) {
-            str = str.split(',')[1];
-          }
-          var imageBytes = base64.decode(str);
+          var imageBytes = hanldeMemoryImage(0);
           setState(() {
             _controller = res1;
             aspectRatio = res1.value.aspectRatio;
@@ -74,10 +70,7 @@ class HomeBodyState extends State<HomeBody> {
 
   play(String url) async {
     try {
-      if (_controller != null) {
-        await _controller!.dispose();
-        _controller = null;
-      }
+      stopVideo();
       String newurl = url.replaceAll('localhost', localIp);
       var res = VideoPlayerController.networkUrl(Uri.parse(newurl),
           videoPlayerOptions: VideoPlayerOptions());
@@ -90,11 +83,25 @@ class HomeBodyState extends State<HomeBody> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (store.tabIndex.value != 0 && _controller != null) {
+  stopVideo() {
+    if (_controller != null) {
       _controller!.dispose();
       _controller = null;
+    }
+  }
+
+  hanldeMemoryImage(index) {
+    var str = livedata['rows'][index]['live_room']['cover_img'];
+    if (str != null) {
+      str = str.split(',')[1];
+    }
+    return base64.decode(str);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (store.tabIndex.value != 0) {
+      stopVideo();
     }
     final size = MediaQuery.of(context).size;
     double height =
@@ -157,12 +164,7 @@ class HomeBodyState extends State<HomeBody> {
                     var res = await play(
                         livedata['rows'][index]['live_room']['hls_url']);
                     if (res != null) {
-                      var str =
-                          livedata['rows'][index]['live_room']['cover_img'];
-                      if (str != null) {
-                        str = str.split(',')[1];
-                      }
-                      var imageBytes = base64.decode(str);
+                      var imageBytes = hanldeMemoryImage(index);
                       setState(() {
                         _controller = res;
                         aspectRatio = res.value.aspectRatio;

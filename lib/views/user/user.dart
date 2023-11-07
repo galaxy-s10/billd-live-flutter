@@ -1,4 +1,5 @@
 import 'package:billd_live_flutter/api/user_api.dart';
+import 'package:billd_live_flutter/components/Loading/index.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/views/live/rank.dart';
 
@@ -133,23 +134,28 @@ class UserBodyState extends State<User> {
                               BrnToast.show('密码长度要求6-10位', context);
                               return;
                             }
-
-                            var res = await UserApi.login(
-                                id: id!, password: password!);
-                            if (res['code'] != 200) {
-                              BrnToast.show(res['message'], context);
-                              return;
+                            try {
+                              BilldLoading.showLoading(context);
+                              var res = await UserApi.login(
+                                  id: id!, password: password!);
+                              if (res['code'] != 200) {
+                                BrnToast.show(res['message'], context);
+                                return;
+                              }
+                              store.setToken(res['data']);
+                              var res1 = await UserApi.getUserInfo();
+                              if (res1['code'] == 200) {
+                                BrnToast.show('登录成功', context);
+                                store.setUserInfo(res1['data']);
+                                setState(() {
+                                  isLogin = true;
+                                });
+                              }
+                            } catch (e) {
+                              print(e);
+                            } finally {
+                              BilldLoading.stop();
                             }
-                            store.setToken(res['data']);
-                            var res1 = await UserApi.getUserInfo();
-                            if (res1['code'] == 200) {
-                              BrnToast.show('登录成功', context);
-                              store.setUserInfo(res1['data']);
-                              setState(() {
-                                isLogin = true;
-                              });
-                            }
-                            // return;
                           },
                         ),
                       )
