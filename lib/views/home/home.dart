@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:billd_live_flutter/api/live_api.dart';
+import 'package:billd_live_flutter/components/Loading/index.dart';
 import 'package:billd_live_flutter/main.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 
@@ -56,12 +57,14 @@ class HomeBodyState extends State<HomeBody> {
         var first = rows[0];
         var res1 = await play(first['live_room']['hls_url']);
         if (res1 != null) {
-          var imageBytes = hanldeMemoryImage(0);
           setState(() {
             _controller = res1;
             aspectRatio = res1.value.aspectRatio;
             livedata = res['data'];
-            memoryImage = MemoryImage(imageBytes);
+            var imageBytes = hanldeMemoryImage(0);
+            if (imageBytes != null) {
+              memoryImage = MemoryImage(imageBytes);
+            }
           });
         }
       }
@@ -91,11 +94,13 @@ class HomeBodyState extends State<HomeBody> {
   }
 
   hanldeMemoryImage(index) {
-    var str = livedata['rows'][index]['live_room']['cover_img'];
-    if (str != null) {
-      str = str.split(',')[1];
+    if (livedata['rows'] != null) {
+      var str = livedata['rows'][index]['live_room']['cover_img'];
+      if (str != null) {
+        str = str.split(',')[1];
+      }
+      return base64.decode(str);
     }
-    return base64.decode(str);
   }
 
   @override
@@ -161,17 +166,25 @@ class HomeBodyState extends State<HomeBody> {
                   scrollDirection: Axis.vertical,
                   autoPlayAnimationDuration: const Duration(milliseconds: 300),
                   onPageChanged: (index, reason) async {
-                    var res = await play(
-                        livedata['rows'][index]['live_room']['hls_url']);
-                    if (res != null) {
-                      var imageBytes = hanldeMemoryImage(index);
-                      setState(() {
-                        _controller = res;
-                        aspectRatio = res.value.aspectRatio;
-                        currentItemIndex = index;
-                        memoryImage = MemoryImage(imageBytes);
-                      });
+                    BilldLoading.showLoading(context);
+                    try {
+                      var res = await play(
+                          livedata['rows'][index]['live_room']['hls_url']);
+                      if (res != null) {
+                        setState(() {
+                          _controller = res;
+                          aspectRatio = res.value.aspectRatio;
+                          currentItemIndex = index;
+                          var imageBytes = hanldeMemoryImage(index);
+                          if (imageBytes != null) {
+                            memoryImage = MemoryImage(imageBytes);
+                          }
+                        });
+                      }
+                    } catch (e) {
+                      print(e);
                     }
+                    BilldLoading.stop();
                   }),
             ),
           ),
