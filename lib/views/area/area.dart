@@ -3,8 +3,6 @@ import 'package:billd_live_flutter/views/area/area_item.dart';
 
 import 'package:flutter/material.dart';
 
-late BuildContext gcontext; //全局变量 由内部 WidgetsBinding赋值
-
 class Area extends StatelessWidget {
   const Area({super.key});
 
@@ -27,12 +25,6 @@ class AreaBodyState extends State<AreaBody> {
   @override
   initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 在Widget构建完成后执行代码
-      BuildContext gcontext = context;
-      // 在这里可以使用context
-      print('Context: $context');
-    });
     print('initState-area');
     getList();
   }
@@ -50,13 +42,18 @@ class AreaBodyState extends State<AreaBody> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: list['total'],
-        itemBuilder: (context, index) {
-          if (list.isNotEmpty) {
-            return AreaItemWidget(list["rows"][index]);
-          }
-          return null;
-        });
+    return Container(
+      color: const Color(0xFFF4F4F4),
+      child: ListView.builder(
+          itemCount: list['total'],
+          itemBuilder: (context, index) {
+            if (list.isNotEmpty) {
+              return AreaItemWidget(
+                item: list["rows"][index],
+              );
+            }
+            return null;
+          }),
+    );
   }
 }

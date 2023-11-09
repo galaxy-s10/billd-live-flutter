@@ -1,6 +1,8 @@
+import 'package:billd_live_flutter/components/BackListener/index.dart';
 import 'package:billd_live_flutter/stores/app.dart';
+import 'package:billd_live_flutter/utils/index.dart';
 import 'package:billd_live_flutter/views/home/home.dart';
-import 'package:billd_live_flutter/views/live/rank.dart';
+import 'package:billd_live_flutter/views/live/live.dart';
 import 'package:billd_live_flutter/views/rank/rank.dart';
 import 'package:billd_live_flutter/views/area/area.dart';
 import 'package:billd_live_flutter/views/user/user.dart';
@@ -21,6 +23,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final Controller store = Get.put(Controller());
+    store.setScreenWidth(size.width);
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false, //右上角的debug信息
       title: appTitle,
@@ -46,46 +52,88 @@ class NavBarWidget extends StatefulWidget {
 
 class NavBarState extends State<NavBarWidget> {
   final Controller store = Get.put(Controller());
-  var _currentIndex = 0;
+  var currentTabIndex = 1;
 
   @override
   Widget build(BuildContext context) {
     EdgeInsets padding = MediaQuery.paddingOf(context);
     store.setSafeHeight(padding.top);
     return Scaffold(
-      // appBar: AppBar(title: const Text(appTitle)),
-      bottomNavigationBar: Visibility(
-          visible: store.bottomNavVisible.isTrue,
-          child: BottomNavigationBar(
-              items: [
-                createBarItem('home', '首页'),
-                createBarItem('area', '分区'),
-                createBarItem('rank', '排行'),
-                createBarItem('user', '我的'),
-              ],
-              currentIndex: _currentIndex,
-              onTap: (int index) {
-                store.setTabIndex(index);
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              type: BottomNavigationBarType.fixed,
-              selectedFontSize: 14,
-              unselectedFontSize: 14,
-              selectedItemColor: themeColor)),
-      body: SafeArea(
-          child: IndexedStack(
-        index: _currentIndex,
-        children: [
-          Home(_currentIndex),
-          const Area(),
-          const Rank(),
-          const User(),
-          const Live()
-        ],
-      )),
-    );
+        // appBar: AppBar(title: const Text(appTitle)),
+        bottomNavigationBar: Visibility(
+            visible: store.bottomNavVisible.isTrue,
+            child: BottomNavigationBar(
+                items: [
+                  createBarItem('home', '首页'),
+                  createBarItem('area', '分区'),
+                  createBarItem('rank', '排行'),
+                  createBarItem('user', '我的'),
+                ],
+                currentIndex: currentTabIndex,
+                onTap: (int index) {
+                  store.setTabIndex(index);
+                  setState(() {
+                    currentTabIndex = index;
+                  });
+                },
+                type: BottomNavigationBarType.fixed,
+                selectedFontSize: 14,
+                unselectedFontSize: 14,
+                selectedItemColor: themeColor)),
+        body: SafeArea(
+            child: IndexedStack(
+          index: currentTabIndex,
+          children: [
+            Home(
+              currentIndex: currentTabIndex,
+            ),
+            const Area(),
+            const Rank(),
+            const User(),
+            const Live()
+          ],
+        )));
+    // return BackListener(
+    //   child: Scaffold(
+    //       // appBar: AppBar(title: const Text(appTitle)),
+    //       bottomNavigationBar: Visibility(
+    //           visible: store.bottomNavVisible.isTrue,
+    //           child: BottomNavigationBar(
+    //               items: [
+    //                 createBarItem('home', '首页'),
+    //                 createBarItem('area', '分区'),
+    //                 createBarItem('rank', '排行'),
+    //                 createBarItem('user', '我的'),
+    //               ],
+    //               currentIndex: currentTabIndex,
+    //               onTap: (int index) {
+    //                 store.setTabIndex(index);
+    //                 setState(() {
+    //                   currentTabIndex = index;
+    //                 });
+    //               },
+    //               type: BottomNavigationBarType.fixed,
+    //               selectedFontSize: 14,
+    //               unselectedFontSize: 14,
+    //               selectedItemColor: themeColor)),
+    //       body: SafeArea(
+    //           child: IndexedStack(
+    //         index: currentTabIndex,
+    //         children: [
+    //           Home(
+    //             currentIndex: currentTabIndex,
+    //           ),
+    //           const Area(),
+    //           const Rank(),
+    //           const User(),
+    //           const Live()
+    //         ],
+    //       ))),
+    //   onBack: () async {
+    //     print('main-onBack');
+    //     return await billdModal(context);
+    //   },
+    // );
   }
 }
 

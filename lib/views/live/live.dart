@@ -214,89 +214,83 @@ class RTCState extends State<WebRTCWidget> {
   }
 
   @override
+  void dispose() {
+    // 移除监听订阅
+    super.dispose();
+    handleCloseLive();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     double height =
         size.height - kBottomNavigationBarHeight - store.safeHeight.value;
 
-    Future<bool> brnDialog() {
-      Completer<bool> completer = Completer<bool>();
-      BrnDialogManager.showConfirmDialog(context,
-          title: "提示",
-          cancel: '取消',
-          confirm: '确定',
-          message: "是否退出直播？", onConfirm: () {
-        handleCloseLive();
-        completer.complete(true);
-        Navigator.pop(context, true);
-      }, onCancel: () {
-        completer.complete(false);
-        Navigator.pop(context, false);
-      });
+    // Future<bool> closeTip() async {
+    //   return await billdModal(context, message: '是否退出直播中心？');
+    // }
 
-      // 返回Future对象
-      return completer.future;
-    }
+    // // 添加返回手势监听器
+    // ModalRoute.of(context)?.addScopedWillPopCallback(() async {
+    //   // 返回true表示允许返回，返回false表示阻止返回
+    //   return await closeTip();
+    // });
 
-    return WillPopScope(
-        child: Column(
-          children: [
-            SizedBox(
-              height: height - 100,
-              width: size.width,
-              child: _localRenderer != null
-                  ? RTCVideoView(
-                      _localRenderer!,
-                      // mirror: true,
-                    )
-                  : null,
-            ),
-            BrnBigGhostButton(
-              title: '切换前/后摄像头/屏幕(当前：${mode[modeIndex]['label']})',
-              onTap: () {
-                if (modeIndex < mode.length - 1) {
-                  setState(() {
-                    modeIndex += 1;
-                  });
-                } else {
-                  setState(() {
-                    modeIndex = 0;
-                  });
-                }
-              },
-            ),
-            BrnBigGhostButton(
-              title: '开始直播',
-              onTap: () {
-                handleInit();
-              },
-            ),
-            BrnBigGhostButton(
-              bgColor: const Color.fromRGBO(244, 67, 54, 0.2),
-              titleColor: const Color.fromRGBO(244, 67, 54, 1),
-              title: '关闭直播',
-              onTap: () {
-                BrnDialogManager.showConfirmDialog(context,
-                    barrierDismissible: false,
-                    title: '提示',
-                    message: '确定关闭直播？',
-                    cancel: '取消',
-                    confirm: '确定',
-                    onCancel: () => {Navigator.pop(context)},
-                    onConfirm: () {
-                      setState(() {
-                        BrnToast.show('关闭直播成功', context);
-                        handleCloseLive();
-                        Navigator.pop(context);
-                      });
-                    });
-              },
-            ),
-          ],
+    return Column(
+      children: [
+        SizedBox(
+          height: height - 100,
+          width: size.width,
+          child: _localRenderer != null
+              ? RTCVideoView(
+                  _localRenderer!,
+                  // mirror: true,
+                )
+              : null,
         ),
-        onWillPop: () async {
-          return await brnDialog();
-        });
+        BrnBigGhostButton(
+          title: '切换前/后摄像头/屏幕(当前：${mode[modeIndex]['label']})',
+          onTap: () {
+            if (modeIndex < mode.length - 1) {
+              setState(() {
+                modeIndex += 1;
+              });
+            } else {
+              setState(() {
+                modeIndex = 0;
+              });
+            }
+          },
+        ),
+        BrnBigGhostButton(
+          title: '开始直播',
+          onTap: () {
+            handleInit();
+          },
+        ),
+        BrnBigGhostButton(
+          bgColor: const Color.fromRGBO(244, 67, 54, 0.2),
+          titleColor: const Color.fromRGBO(244, 67, 54, 1),
+          title: '关闭直播',
+          onTap: () {
+            BrnDialogManager.showConfirmDialog(context,
+                barrierDismissible: false,
+                title: '提示',
+                message: '确定关闭直播？',
+                cancel: '取消',
+                confirm: '确定',
+                onCancel: () => {Navigator.pop(context)},
+                onConfirm: () {
+                  setState(() {
+                    BrnToast.show('关闭直播成功', context);
+                    handleCloseLive();
+                    Navigator.pop(context);
+                  });
+                });
+          },
+        ),
+      ],
+    );
   }
 }
 

@@ -1,4 +1,5 @@
-import 'package:billd_live_flutter/components/Loading/index.dart';
+import 'package:billd_live_flutter/components/BackListener/index.dart';
+import 'package:billd_live_flutter/utils/index.dart';
 import 'package:flutter/material.dart';
 
 class Rank extends StatelessWidget {
@@ -6,26 +7,27 @@ class Rank extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text('排行');
-    // return Container(
-    //   child: Column(children: [
-    //     ElevatedButton(
-    //       child: Text('Show'),
-    //       onPressed: () {
-    //         print('eeee');
-    //       },
-    //     ),
-    //     ElevatedButton(
-    //       child: Text('Show Loading'),
-    //       onPressed: () {
-    //         BilldLoading.showLoading(context);
-    //         // 模拟加载过程
-    //         Future.delayed(Duration(seconds: 1), () {
-    //           BilldLoading.stop();
-    //         });
-    //       },
-    //     )
-    //   ]),
+    return const RankBody();
+  }
+}
+
+class RankBody extends StatefulWidget {
+  const RankBody({super.key});
+
+  @override
+  State<StatefulWidget> createState() => RankBodyState();
+}
+
+class RankBodyState extends State<RankBody> {
+  @override
+  Widget build(BuildContext context) {
+    return Text('rank');
+    // return WillPopScope(
+    //   child: Text('dd'),
+    //   onWillPop: () async {
+    //     print('rank-onBack');
+    //     return await billdModal(context, message: 'rrrrrrr');
+    //   },
     // );
   }
 }

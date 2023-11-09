@@ -2,30 +2,30 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:billd_live_flutter/api/live_api.dart';
-import 'package:billd_live_flutter/components/Loading/index.dart';
 import 'package:billd_live_flutter/main.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 
 import 'package:flutter/material.dart';
-
 import 'package:bruno/bruno.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
 class Home extends StatelessWidget {
-  Home(this.currentIndex, {super.key});
-  var currentIndex = 0;
+  final int currentIndex;
+  const Home({required this.currentIndex, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return HomeBody(currentIndex);
+    return HomeBody(
+      currentIndex: currentIndex,
+    );
   }
 }
 
 class HomeBody extends StatefulWidget {
-  HomeBody(this.currentIndex, {super.key});
-  var currentIndex = 0;
+  final int currentIndex;
+  const HomeBody({required this.currentIndex, super.key});
 
   @override
   State<StatefulWidget> createState() => HomeBodyState(currentIndex);
@@ -37,6 +37,7 @@ class HomeBodyState extends State<HomeBody> {
   VideoPlayerController? _controller;
   int currentItemIndex = 0;
   double aspectRatio = 1.0;
+  bool loading = false;
 
   var memoryImage;
 
@@ -156,7 +157,19 @@ class HomeBodyState extends State<HomeBody> {
                     ],
                   );
                 }
-                return Container();
+                return Stack(children: [
+                  Align(
+                      alignment: Alignment.center,
+                      child: loading
+                          ? const Text(
+                              '加载中...',
+                              style: TextStyle(
+                                color: themeColor,
+                                fontSize: 20,
+                              ),
+                            )
+                          : null)
+                ]);
               },
               options: CarouselOptions(
                   height: height,
@@ -166,12 +179,15 @@ class HomeBodyState extends State<HomeBody> {
                   scrollDirection: Axis.vertical,
                   autoPlayAnimationDuration: const Duration(milliseconds: 300),
                   onPageChanged: (index, reason) async {
-                    BilldLoading.showLoading(context);
                     try {
+                      setState(() {
+                        loading = true;
+                      });
                       var res = await play(
                           livedata['rows'][index]['live_room']['hls_url']);
                       if (res != null) {
                         setState(() {
+                          loading = false;
                           _controller = res;
                           aspectRatio = res.value.aspectRatio;
                           currentItemIndex = index;
@@ -183,8 +199,10 @@ class HomeBodyState extends State<HomeBody> {
                       }
                     } catch (e) {
                       print(e);
+                      setState(() {
+                        loading = false;
+                      });
                     }
-                    BilldLoading.stop();
                   }),
             ),
           ),
