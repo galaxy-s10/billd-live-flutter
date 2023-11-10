@@ -28,8 +28,13 @@ class UserBody extends StatefulWidget {
 class UserBodyState extends State<UserBody> {
   int? id = 101;
   // String? password = 'nDfg8noO';//测试密码
-  String? password = '12345666';
+  String? password = '1234567';
   bool isLogin = false;
+
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 检测页面是否在前台
+    print('检测页面是否在前台user-${state}');
+  }
 
   @override
   Widget build(BuildContext context) {

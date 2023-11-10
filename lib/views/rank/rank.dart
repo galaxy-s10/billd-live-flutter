@@ -20,14 +20,12 @@ class RankBody extends StatefulWidget {
 
 class RankBodyState extends State<RankBody> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Text('rank');
-    // return WillPopScope(
-    //   child: Text('dd'),
-    //   onWillPop: () async {
-    //     print('rank-onBack');
-    //     return await billdModal(context, message: 'rrrrrrr');
-    //   },
-    // );
   }
 }

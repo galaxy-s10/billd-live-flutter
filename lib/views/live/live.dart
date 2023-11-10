@@ -19,6 +19,8 @@ class WebRTCWidget extends StatefulWidget {
   createState() => RTCState();
 }
 
+enum LIVE_STATUS { nolive, living }
+
 class RTCState extends State<WebRTCWidget> {
   RTCVideoRenderer? _localRenderer;
   RTCPeerConnection? _pc;
@@ -27,12 +29,14 @@ class RTCState extends State<WebRTCWidget> {
   final Controller store = get_x.Get.put(Controller());
 
   var mode = [
-    {'label': '前置', 'value': 'front'},
     {'label': '后置', 'value': 'back'},
+    {'label': '前置', 'value': 'front'},
     {'label': '屏幕', 'value': 'screen'},
   ];
 
   var modeIndex = 0;
+  int countdown = 3;
+  LIVE_STATUS liveStatus = LIVE_STATUS.nolive;
 
   @override
   initState() {
@@ -226,16 +230,6 @@ class RTCState extends State<WebRTCWidget> {
     double height =
         size.height - kBottomNavigationBarHeight - store.safeHeight.value;
 
-    // Future<bool> closeTip() async {
-    //   return await billdModal(context, message: '是否退出直播中心？');
-    // }
-
-    // // 添加返回手势监听器
-    // ModalRoute.of(context)?.addScopedWillPopCallback(() async {
-    //   // 返回true表示允许返回，返回false表示阻止返回
-    //   return await closeTip();
-    // });
-
     return Column(
       children: [
         SizedBox(
@@ -248,24 +242,99 @@ class RTCState extends State<WebRTCWidget> {
                 )
               : null,
         ),
-        BrnBigGhostButton(
-          title: '切换前/后摄像头/屏幕(当前：${mode[modeIndex]['label']})',
-          onTap: () {
-            if (modeIndex < mode.length - 1) {
-              setState(() {
-                modeIndex += 1;
-              });
-            } else {
-              setState(() {
-                modeIndex = 0;
-              });
-            }
-          },
+        Container(
+          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+          child: Row(
+            children: <Widget>[
+              const SizedBox(
+                width: 5,
+              ),
+              const Text("直播方式："),
+              BrnRadioButton(
+                radioIndex: 0,
+                isSelected: modeIndex == 0,
+                child: const Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: Text(
+                    "前置摄像头",
+                  ),
+                ),
+                onValueChangedAtIndex: (index, value) {
+                  setState(() {
+                    modeIndex = index;
+                  });
+                },
+              ),
+              const SizedBox(
+                width: 20,
+              ),
+              BrnRadioButton(
+                radioIndex: 1,
+                isSelected: modeIndex == 1,
+                child: const Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: Text(
+                    "后置摄像头",
+                  ),
+                ),
+                onValueChangedAtIndex: (index, value) {
+                  setState(() {
+                    modeIndex = index;
+                  });
+                },
+              ),
+              const SizedBox(
+                width: 20,
+              ),
+              BrnRadioButton(
+                radioIndex: 2,
+                isSelected: modeIndex == 2,
+                child: const Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: Text(
+                    "屏幕",
+                  ),
+                ),
+                onValueChangedAtIndex: (index, value) {
+                  setState(() {
+                    modeIndex = index;
+                  });
+                },
+              ),
+            ],
+          ),
         ),
         BrnBigGhostButton(
-          title: '开始直播',
-          onTap: () {
-            handleInit();
+          title: '开始直播$countdown',
+          onTap: () async {
+            BrnDialogManager.showConfirmDialog(context,
+                title: '提示',
+                cancel: '取消',
+                confirm: '确认',
+                message: '是否开播', onConfirm: () async {
+              Navigator.pop(context, true);
+              BrnLoadingDialog.show(context, content: '$countdown');
+              Timer.periodic(const Duration(seconds: 1), (timer) {
+                // BrnLoadingDialog.dismiss(context);
+                // BrnLoadingDialog.show(context, content: '$countdown');
+                setState(() {
+                  countdown -= 1;
+                });
+                if (countdown <= 0) {
+                  timer.cancel();
+                }
+              });
+              await LiveApi.getCloseLive();
+              await Future.delayed(const Duration(seconds: 3), () {
+                BrnLoadingDialog.dismiss(context);
+                if (context.mounted) {
+                  BrnToast.show('直播！', context);
+                }
+              });
+              handleInit();
+            }, onCancel: () {
+              Navigator.pop(context, false);
+            });
           },
         ),
         BrnBigGhostButton(
