@@ -1,31 +1,20 @@
 import 'package:billd_live_flutter/api/user_api.dart';
-import 'package:billd_live_flutter/components/BackListener/index.dart';
 import 'package:billd_live_flutter/components/Loading/index.dart';
 import 'package:billd_live_flutter/stores/app.dart';
-import 'package:billd_live_flutter/utils/index.dart';
 import 'package:billd_live_flutter/views/live/live.dart';
 
 import 'package:flutter/material.dart';
 import 'package:bruno/bruno.dart';
 import 'package:get/get.dart';
 
-class User extends StatelessWidget {
+class User extends StatefulWidget {
   const User({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const UserBody();
-  }
+  State<StatefulWidget> createState() => UserState();
 }
 
-class UserBody extends StatefulWidget {
-  const UserBody({super.key});
-
-  @override
-  State<StatefulWidget> createState() => UserBodyState();
-}
-
-class UserBodyState extends State<UserBody> {
+class UserState extends State<User> {
   int? id = 101;
   // String? password = 'nDfg8noO';//测试密码
   String? password = '1234567';
@@ -39,14 +28,6 @@ class UserBodyState extends State<UserBody> {
   @override
   Widget build(BuildContext context) {
     final Controller store = Get.put(Controller());
-    // 添加返回手势监听器
-    // ModalRoute.of(context)?.addScopedWillPopCallback(() async {
-    //   print(store.tabIndex);
-    //   print('llllll');
-    //   // 返回true表示允许返回，返回false表示阻止返回
-    //   var res = await billdModal(context, message: 'ddddd');
-    //   return res;
-    // });
 
     return Column(children: [
       isLogin == true

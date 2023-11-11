@@ -53,13 +53,14 @@ class NavBarWidget extends StatefulWidget {
 
 class NavBarState extends State<NavBarWidget> {
   final Controller store = Get.put(Controller());
-  var currentTabIndex = 1;
+  var currentTabIndex = 2;
   var exitTimer = false;
 
   @override
   Widget build(BuildContext context) {
     EdgeInsets padding = MediaQuery.paddingOf(context);
     store.setSafeHeight(padding.top);
+    store.setTabIndex(currentTabIndex);
     return WillPopScope(
         child: Scaffold(
             // appBar: AppBar(title: const Text(appTitle)),
@@ -87,15 +88,7 @@ class NavBarState extends State<NavBarWidget> {
             body: SafeArea(
                 child: IndexedStack(
               index: currentTabIndex,
-              children: [
-                Home(
-                  currentIndex: currentTabIndex,
-                ),
-                const Area(),
-                const Rank(),
-                const User(),
-                const Live()
-              ],
+              children: const [Home(), Area(), Rank(), User(), Live()],
             ))),
         onWillPop: () async {
           if (exitTimer == true) {
