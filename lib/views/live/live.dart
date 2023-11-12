@@ -29,19 +29,23 @@ class RTCState extends State<WebRTCWidget> {
   final Controller store = get_x.Get.put(Controller());
 
   var mode = [
-    {'label': '后置', 'value': 'back'},
     {'label': '前置', 'value': 'front'},
+    {'label': '后置', 'value': 'back'},
     {'label': '屏幕', 'value': 'screen'},
   ];
 
   var modeIndex = 0;
   int countdown = 3;
-  LIVE_STATUS liveStatus = LIVE_STATUS.nolive;
+  // var liveStatus = ValueNotifier(LIVE_STATUS.nolive);
+  var liveStatus = LIVE_STATUS.nolive;
 
   @override
   initState() {
     print('initState-webrtc');
     super.initState();
+    // liveStatus.addListener(() async {
+    //   setState(() {});
+    // });
   }
 
   handleOffer() async {
@@ -167,7 +171,7 @@ class RTCState extends State<WebRTCWidget> {
     await LiveApi.getCloseLive();
   }
 
-  handleInit() async {
+  handleStartLive() async {
     await startForegroundService();
     _localRenderer = RTCVideoRenderer();
     await _localRenderer!.initialize();
@@ -193,6 +197,10 @@ class RTCState extends State<WebRTCWidget> {
       var sdp = await handleOffer();
       if (sdp != null) {
         handleAnswer(sdp);
+        // liveStatus.value = LIVE_STATUS.living;
+        setState(() {
+          liveStatus = LIVE_STATUS.living;
+        });
       } else {
         if (context.mounted) {
           BrnToast.show('offer错误', context);
@@ -205,7 +213,11 @@ class RTCState extends State<WebRTCWidget> {
             cancel: '取消',
             confirm: '确定',
             message: "当前正在直播，是否先断开直播？", onConfirm: () async {
-          await LiveApi.getCloseLive();
+          // await LiveApi.getCloseLive();
+          await handleCloseLive();
+          setState(() {
+            liveStatus = LIVE_STATUS.nolive;
+          });
           if (context.mounted) {
             BrnToast.show('断开直播成功', context);
             Navigator.pop(context, true);
@@ -233,7 +245,7 @@ class RTCState extends State<WebRTCWidget> {
     return Column(
       children: [
         SizedBox(
-          height: height - 100,
+          height: height - 40,
           width: size.width,
           child: _localRenderer != null
               ? RTCVideoView(
@@ -304,60 +316,61 @@ class RTCState extends State<WebRTCWidget> {
             ],
           ),
         ),
-        BrnBigGhostButton(
-          title: '开始直播$countdown',
-          onTap: () async {
-            BrnDialogManager.showConfirmDialog(context,
-                title: '提示',
-                cancel: '取消',
-                confirm: '确认',
-                message: '是否开播', onConfirm: () async {
-              Navigator.pop(context, true);
-              BrnLoadingDialog.show(context, content: '$countdown');
-              Timer.periodic(const Duration(seconds: 1), (timer) {
-                // BrnLoadingDialog.dismiss(context);
-                // BrnLoadingDialog.show(context, content: '$countdown');
-                setState(() {
-                  countdown -= 1;
-                });
-                if (countdown <= 0) {
-                  timer.cancel();
-                }
-              });
-              await LiveApi.getCloseLive();
-              await Future.delayed(const Duration(seconds: 3), () {
-                BrnLoadingDialog.dismiss(context);
-                if (context.mounted) {
-                  BrnToast.show('直播！', context);
-                }
-              });
-              handleInit();
-            }, onCancel: () {
-              Navigator.pop(context, false);
-            });
-          },
-        ),
-        BrnBigGhostButton(
-          bgColor: const Color.fromRGBO(244, 67, 54, 0.2),
-          titleColor: const Color.fromRGBO(244, 67, 54, 1),
-          title: '关闭直播',
-          onTap: () {
-            BrnDialogManager.showConfirmDialog(context,
-                barrierDismissible: false,
-                title: '提示',
-                message: '确定关闭直播？',
-                cancel: '取消',
-                confirm: '确定',
-                onCancel: () => {Navigator.pop(context)},
-                onConfirm: () {
-                  setState(() {
-                    BrnToast.show('关闭直播成功', context);
-                    handleCloseLive();
-                    Navigator.pop(context);
+        // liveStatus.value == LIVE_STATUS.nolive
+        liveStatus == LIVE_STATUS.nolive
+            ? BrnBigGhostButton(
+                title: '开始直播',
+                onTap: () async {
+                  BrnDialogManager.showConfirmDialog(context,
+                      title: '提示',
+                      cancel: '取消',
+                      confirm: '确认',
+                      message: '是否开播', onConfirm: () async {
+                    Navigator.pop(context, true);
+                    // BrnLoadingDialog.show(context, content: '$countdown');
+                    // Timer.periodic(const Duration(seconds: 1), (timer) {
+                    //   setState(() {
+                    //     countdown -= 1;
+                    //   });
+                    //   if (countdown <= 0) {
+                    //     timer.cancel();
+                    //   }
+                    // });
+                    await LiveApi.getCloseLive();
+                    // await Future.delayed(const Duration(seconds: 3), () {
+                    //   BrnLoadingDialog.dismiss(context);
+                    //   if (context.mounted) {
+                    //     BrnToast.show('直播！', context);
+                    //   }
+                    // });
+                    handleStartLive();
+                  }, onCancel: () {
+                    Navigator.pop(context, false);
                   });
-                });
-          },
-        ),
+                },
+              )
+            : BrnBigGhostButton(
+                bgColor: const Color.fromRGBO(244, 67, 54, 0.2),
+                titleColor: const Color.fromRGBO(244, 67, 54, 1),
+                title: '关闭直播',
+                onTap: () {
+                  BrnDialogManager.showConfirmDialog(context,
+                      barrierDismissible: false,
+                      title: '提示',
+                      message: '确定关闭直播？',
+                      cancel: '取消',
+                      confirm: '确定',
+                      onCancel: () => {Navigator.pop(context)},
+                      onConfirm: () async {
+                        await handleCloseLive();
+                        setState(() {
+                          liveStatus = LIVE_STATUS.nolive;
+                          BrnToast.show('关闭直播成功', context);
+                          Navigator.pop(context);
+                        });
+                      });
+                },
+              ),
       ],
     );
   }

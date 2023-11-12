@@ -18,5 +18,4 @@ import 'dart:math';
 
 void main() {
   var aa = [];
-  print(aa.length);
 }

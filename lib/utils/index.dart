@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:billd_live_flutter/main.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -42,4 +43,22 @@ Future<bool> billdModal(context,
   });
   // 返回Future对象
   return completer.future;
+}
+
+fullLoading() {
+  return Scaffold(
+    body: SafeArea(
+      child: Container(
+          alignment: Alignment.center,
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const CircularProgressIndicator(
+              color: themeColor,
+            ),
+            Container(
+              margin: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+              child: const Text('加载中...'),
+            )
+          ])),
+    ),
+  );
 }

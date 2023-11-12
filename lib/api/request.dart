@@ -1,4 +1,3 @@
-import 'package:billd_live_flutter/main.dart';
 import 'package:get/get.dart' as get_x;
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:dio/dio.dart';

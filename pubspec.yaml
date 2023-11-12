@@ -89,6 +89,8 @@ flutter:
     - assets/images/tabbar/rank_active.png
     - assets/images/tabbar/user.png
     - assets/images/tabbar/user_active.png
+    - assets/images/home/reload.png
+    - assets/images/home/sync.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

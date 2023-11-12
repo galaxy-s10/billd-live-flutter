@@ -30,7 +30,6 @@ class HomeState extends State<Home> {
 
   @override
   initState() {
-    print('initState-home${store.tabIndex}');
     super.initState();
     getData().then((_) {
       if (store.tabIndex.value == 0) {
@@ -53,12 +52,24 @@ class HomeState extends State<Home> {
   }
 
   Future getData() async {
-    var res = await LiveApi.getLiveList();
-    if (res['code'] == 200) {
-      setState(() {
-        livedata = res['data'];
-      });
+    var res;
+    bool err = false;
+    try {
+      res = await LiveApi.getLiveList();
+      if (res['code'] == 200) {
+        setState(() {
+          livedata = res['data'];
+        });
+      } else {
+        err = true;
+      }
+    } catch (e) {
+      print(e);
     }
+    if (err && context.mounted) {
+      BrnToast.show(res['message'], context);
+    }
+    return err;
   }
 
   playVideo(String url) async {
@@ -69,6 +80,7 @@ class HomeState extends State<Home> {
           videoPlayerOptions: VideoPlayerOptions());
       _controller = res;
       memoryImage = hanldeMemoryImage(currentItemIndex.value);
+      setState(() {});
       await res.initialize();
       await res.play();
       _aspectRatio = res.value.aspectRatio;
@@ -154,17 +166,75 @@ class HomeState extends State<Home> {
                             ),
                             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                             margin: const EdgeInsets.fromLTRB(6, 0, 0, 6),
-                            child: Text(
-                              '${livedata['rows'][currentItemIndex.value]['live_room']['name']}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            child: Container(
+                                transform: Matrix4.translationValues(0, -1, 0),
+                                child: Text(
+                                  '${livedata['rows'][currentItemIndex.value]['live_room']['name']}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                )),
                           ),
-                        )
+                        ),
+                        Align(
+                            alignment: Alignment.bottomRight,
+                            child: GestureDetector(
+                              child: Container(
+                                height: 50,
+                                // color: Colors.red,
+                                margin: const EdgeInsets.fromLTRB(0, 0, 20, 20),
+                                child: Column(children: [
+                                  Image.asset(
+                                    "assets/images/home/sync.png",
+                                    width: 30,
+                                  ),
+                                  const Text(
+                                    '同步',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ]),
+                              ),
+                              onTap: () async {
+                                await playVideo(livedata['rows']
+                                        [currentItemIndex.value]['live_room']
+                                    ['hls_url']);
+                              },
+                            )),
+                        Align(
+                            alignment: Alignment.bottomRight,
+                            child: GestureDetector(
+                              child: Container(
+                                height: 50,
+                                margin: const EdgeInsets.fromLTRB(0, 0, 20, 90),
+                                child: Column(children: [
+                                  Image.asset(
+                                    "assets/images/home/reload.png",
+                                    width: 30,
+                                  ),
+                                  const Text(
+                                    '刷新',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ]),
+                              ),
+                              onTap: () async {
+                                var err = await getData();
+                                if (!err) {
+                                  if (context.mounted) {
+                                    BrnToast.show('更新直播列表成功', context);
+                                  }
+                                }
+                              },
+                            ))
                       ],
                     );
                   }

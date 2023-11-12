@@ -1,4 +1,5 @@
 import 'package:billd_live_flutter/api/area_api.dart';
+import 'package:billd_live_flutter/utils/index.dart';
 import 'package:billd_live_flutter/views/area/area_item.dart';
 import 'package:billd_live_flutter/views/area/list.dart';
 import 'package:bruno/bruno.dart';
@@ -44,7 +45,10 @@ class AreaState extends State<Area> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    if (areadata.isEmpty) {
+      return fullLoading();
+    }
+    return RefreshIndicator(
       child: ListView.builder(
           itemCount: areadata['total'],
           itemBuilder: (context, index) {
@@ -77,6 +81,7 @@ class AreaState extends State<Area> {
                                   MaterialPageRoute(
                                     builder: (context) => AreaList(
                                       id: areadata["rows"][index]['id'],
+                                      areaName: areadata["rows"][index]['name'],
                                     ),
                                   ),
                                 );
@@ -118,6 +123,12 @@ class AreaState extends State<Area> {
             }
             return null;
           }),
+      onRefresh: () async {
+        await getData();
+        if (context.mounted) {
+          BrnToast.show('刷新成功', context);
+        }
+      },
     );
   }
 }

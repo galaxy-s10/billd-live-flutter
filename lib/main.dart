@@ -53,12 +53,16 @@ class NavBarWidget extends StatefulWidget {
 
 class NavBarState extends State<NavBarWidget> {
   final Controller store = Get.put(Controller());
-  var currentTabIndex = 2;
+  var currentTabIndex = 0;
   var exitTimer = false;
 
   @override
   Widget build(BuildContext context) {
     EdgeInsets padding = MediaQuery.paddingOf(context);
+    final size = MediaQuery.of(context).size;
+    var normalHeight =
+        size.height - kBottomNavigationBarHeight - store.safeHeight.value;
+    store.setNormalHeight(normalHeight);
     store.setSafeHeight(padding.top);
     store.setTabIndex(currentTabIndex);
     return WillPopScope(
@@ -75,7 +79,6 @@ class NavBarState extends State<NavBarWidget> {
                     ],
                     currentIndex: currentTabIndex,
                     onTap: (int index) {
-                      print('切换tab,$index');
                       store.setTabIndex(index);
                       setState(() {
                         currentTabIndex = index;

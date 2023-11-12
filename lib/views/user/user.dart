@@ -15,9 +15,10 @@ class User extends StatefulWidget {
 }
 
 class UserState extends State<User> {
+  // int? id;
+  // String? password;
   int? id = 101;
-  // String? password = 'nDfg8noO';//测试密码
-  String? password = '1234567';
+  String? password = '123456';
   bool isLogin = false;
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -148,8 +149,6 @@ class UserState extends State<User> {
                           }
                           store.setToken(res['data']);
                           var res1 = await UserApi.getUserInfo();
-                          print(res1);
-                          print('333333');
                           if (res1['code'] == 200) {
                             if (context.mounted) {
                               BrnToast.show('登录成功', context);
