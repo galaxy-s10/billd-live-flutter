@@ -39,10 +39,19 @@ class RTCState extends State<WebRTCWidget> {
   // var liveStatus = ValueNotifier(LIVE_STATUS.nolive);
   var liveStatus = LIVE_STATUS.nolive;
 
+  getAllDev() async {
+    var res = await navigator.mediaDevices.enumerateDevices();
+    for (var element in res) {
+      print('element,${element.kind},${element.label},---${element.deviceId}');
+    }
+    return res;
+  }
+
   @override
   initState() {
     print('initState-webrtc');
     super.initState();
+    getAllDev();
     // liveStatus.addListener(() async {
     //   setState(() {});
     // });
@@ -119,9 +128,13 @@ class RTCState extends State<WebRTCWidget> {
           'audio': true,
         });
       } else if (mode[modeIndex]['value'] == 'screen') {
-        stream = await navigator.mediaDevices.getDisplayMedia({
-          'video': true,
+        stream = await navigator.mediaDevices.getDisplayMedia({});
+        var audiostream = await navigator.mediaDevices.getUserMedia({
+          'video': false,
           'audio': true,
+        });
+        audiostream.getTracks().forEach((track) async {
+          await _pc?.addTrack(track, audiostream);
         });
       }
       if (stream != null) {

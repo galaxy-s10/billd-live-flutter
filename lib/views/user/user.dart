@@ -2,7 +2,6 @@ import 'package:billd_live_flutter/api/user_api.dart';
 import 'package:billd_live_flutter/components/Loading/index.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/views/live/live.dart';
-
 import 'package:flutter/material.dart';
 import 'package:bruno/bruno.dart';
 import 'package:get/get.dart';
@@ -18,7 +17,7 @@ class UserState extends State<User> {
   // int? id;
   // String? password;
   int? id = 101;
-  String? password = '123456';
+  String? password = '1234567';
   bool isLogin = false;
 
   void didChangeAppLifecycleState(AppLifecycleState state) {

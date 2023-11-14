@@ -53,7 +53,7 @@ class NavBarWidget extends StatefulWidget {
 
 class NavBarState extends State<NavBarWidget> {
   final Controller store = Get.put(Controller());
-  var currentTabIndex = 0;
+  var currentTabIndex = 3;
   var exitTimer = false;
 
   @override
