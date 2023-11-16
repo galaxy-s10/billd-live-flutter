@@ -43,9 +43,18 @@ class TopItem extends StatelessWidget {
                       transform: Matrix4.translationValues(0, -40, 0),
                       width: 80,
                       height: 80,
-                      child: CircleAvatar(
-                        backgroundImage: NetworkImage(item['user_avatar']),
-                      ))
+                      child: item['user_avatar'] == ''
+                          ? Container(
+                              decoration: const BoxDecoration(
+                                color: themeColor,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(40)),
+                              ),
+                            )
+                          : CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(item['user_avatar']),
+                            ))
                 ],
               )),
           Positioned(

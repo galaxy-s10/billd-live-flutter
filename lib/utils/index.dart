@@ -16,6 +16,17 @@ handleRequestPermissions() async {
     print('没有microphone权限');
     await Permission.microphone.request();
   }
+  var manageExternalStoragestatus =
+      await Permission.manageExternalStorage.status;
+  if (manageExternalStoragestatus.isDenied) {
+    print('没有manageExternalStorage权限');
+    await Permission.manageExternalStorage.request();
+  }
+  var mediaLibrarystatus = await Permission.mediaLibrary.status;
+  if (mediaLibrarystatus.isDenied) {
+    print('没有mediaLibrary权限');
+    await Permission.mediaLibrary.request();
+  }
   var ignoreBatteryOptimizationsstatus =
       await Permission.ignoreBatteryOptimizations.status;
   if (ignoreBatteryOptimizationsstatus.isDenied) {

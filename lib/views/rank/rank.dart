@@ -3,8 +3,10 @@ import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/utils/index.dart';
 import 'package:billd_live_flutter/views/rank/list.dart';
 import 'package:billd_live_flutter/views/rank/top_item.dart';
+import 'package:billd_live_flutter/views/room/websocket.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class Rank extends StatefulWidget {
@@ -29,6 +31,22 @@ class RankState extends State<Rank> {
   void initState() {
     super.initState();
     getData();
+    WsClass().init();
+    handleAudio();
+  }
+
+  handleAudio() async {
+    try {
+      const channel = const MethodChannel("your_channel_name");
+      // 通过渠道，调用原生代码代码的方法
+      Future future =
+          channel.invokeMethod("your_method_name", {"msg": 'd44ty43y3'});
+      // 打印执行的结果
+      print('打印执行的结果');
+      print(future.toString());
+    } on PlatformException catch (e) {
+      print(e.toString());
+    }
   }
 
   getData() async {

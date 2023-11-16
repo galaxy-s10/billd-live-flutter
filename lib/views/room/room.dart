@@ -6,6 +6,7 @@ import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
+import 'package:socket_io_client/socket_io_client.dart' as ws;
 
 class Room extends StatefulWidget {
   final String hlsurl;
@@ -34,6 +35,7 @@ class RankState extends State<Room> {
   String hlsurl = '';
   String avatar = '';
   String username = '';
+  late ws.Socket? socket;
 
   @override
   void initState() {
@@ -48,6 +50,8 @@ class RankState extends State<Room> {
   void dispose() {
     super.dispose();
     stopVideo();
+    socket?.close();
+    socket = null;
   }
 
   playVideo(String url) async {

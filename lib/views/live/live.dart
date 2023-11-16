@@ -102,7 +102,7 @@ class RTCState extends State<WebRTCWidget> {
   }
 
   handleStream() async {
-    var stream;
+    MediaStream? stream;
     try {
       if (mode[modeIndex]['value'] == 'front') {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -128,18 +128,32 @@ class RTCState extends State<WebRTCWidget> {
           'audio': true,
         });
       } else if (mode[modeIndex]['value'] == 'screen') {
-        stream = await navigator.mediaDevices.getDisplayMedia({});
-        var audiostream = await navigator.mediaDevices.getUserMedia({
-          'video': false,
+        stream = await navigator.mediaDevices.getDisplayMedia({
+          'video': true,
           'audio': true,
         });
-        audiostream.getTracks().forEach((track) async {
-          await _pc?.addTrack(track, audiostream);
-        });
+
+        // try {
+        //   bool started = await FlutterScreenRecording.startRecordScreenAndAudio(
+        //       'billdtestvideo');
+        //   print('pppppp3,$started');
+        // } catch (e) {
+        //   print(e);
+        //   print('pppppp4');
+        // }
+
+        // var audiostream = await navigator.mediaDevices.getUserMedia({
+        //   'video': false,
+        //   'audio': true,
+        // });
+        // audiostream.getTracks().forEach((track) async {
+        //   await _pc?.addTrack(track, audiostream);
+        // });
       }
       if (stream != null) {
         stream.getTracks().forEach((track) async {
-          await _pc?.addTrack(track, stream);
+          print('pppppp,${track.kind},${track.label}');
+          await _pc?.addTrack(track, stream!);
         });
         setState(() {
           _stream = stream;
