@@ -7,7 +7,10 @@ import 'package:billd_live_flutter/views/room/websocket.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_background/flutter_background.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart' as rtc;
 
 class Rank extends StatefulWidget {
   const Rank({super.key});
@@ -36,17 +39,17 @@ class RankState extends State<Rank> {
   }
 
   handleAudio() async {
-    try {
-      const channel = const MethodChannel("your_channel_name");
-      // 通过渠道，调用原生代码代码的方法
-      Future future =
-          channel.invokeMethod("your_method_name", {"msg": 'd44ty43y3'});
-      // 打印执行的结果
-      print('打印执行的结果');
-      print(future.toString());
-    } on PlatformException catch (e) {
-      print(e.toString());
-    }
+    // try {
+    //   const channel = const MethodChannel("your_channel_name");
+    //   // 通过渠道，调用原生代码代码的方法
+    //   Future future =
+    //       channel.invokeMethod("your_method_name", {"msg": 'd44ty43y3'});
+    //   // 打印执行的结果
+    //   print('打印执行的结果');
+    //   print(future.toString());
+    // } on PlatformException catch (e) {
+    //   print(e.toString());
+    // }
   }
 
   getData() async {
@@ -72,6 +75,26 @@ class RankState extends State<Rank> {
     }
   }
 
+  Future<MediaStream> createMediaStream() async {
+    var mediaStream = await createLocalMediaStream('ddd');
+    // var audioTrack = MediaStreamTrack();
+    // mediaStream.addTrack(audioTrack);
+    return mediaStream;
+  }
+
+  Future<bool> startForegroundService() async {
+    const androidConfig = FlutterBackgroundAndroidConfig(
+      notificationTitle: 'Title of the notification',
+      notificationText: 'Text of the notification',
+      notificationImportance: AndroidNotificationImportance.Default,
+      notificationIcon: AndroidResource(
+          name: 'background_icon',
+          defType: 'drawable'), // Default is ic_launcher from folder mipmap
+    );
+    await FlutterBackground.initialize(androidConfig: androidConfig);
+    return FlutterBackground.enableBackgroundExecution();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -94,6 +117,38 @@ class RankState extends State<Rank> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const AndroidView(
+                  viewType: 'package com.example.billd_live_flutter',
+                ),
+                GestureDetector(
+                  child: Container(
+                    child: Text('录2制'),
+                  ),
+                  onTap: () async {
+                    // await startForegroundService();
+                    print('录制录制');
+                    // stream.listen((event) {
+                    //   print(event);
+                    //   print("ddd");
+                    // });
+                    // print('streamstream');
+                    // print(stream);
+                  },
+                ),
+                GestureDetector(
+                  child: Container(
+                    width: 20,
+                    child: Text(''),
+                  ),
+                ),
+                GestureDetector(
+                  child: Container(
+                    child: Text('停止'),
+                  ),
+                  onTap: () {
+                    print('停止');
+                  },
+                ),
                 Container(
                     margin: const EdgeInsets.fromLTRB(0, 120, 0, 0),
                     child: TopItem(
