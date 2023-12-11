@@ -55,13 +55,13 @@ class RankListState extends State<RankList> {
                               fontStyle: FontStyle.italic),
                         ),
                       )),
-                  list[index]['user_avatar'] != ''
+                  list[index]['users'][0]['avatar'] != ''
                       ? SizedBox(
                           width: 26,
                           height: 26,
                           child: CircleAvatar(
                             backgroundImage:
-                                NetworkImage(list[index]['user_avatar']),
+                                NetworkImage(list[index]['users'][0]['avatar']),
                           ))
                       : Container(
                           width: 26,
@@ -75,7 +75,7 @@ class RankListState extends State<RankList> {
                     margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                     width: 150,
                     child: Text(
-                      list[index]['user_username'],
+                      list[index]['users'][0]['username'],
                       style: const TextStyle(
                           fontSize: 12, overflow: TextOverflow.ellipsis),
                     ),
@@ -110,10 +110,9 @@ class RankListState extends State<RankList> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => Room(
-                      hlsurl: list[index]['hls_url'],
-                      avatar: list[index]['user_avatar'],
-                      username: list[index]['user_username'],
-                    ),
+                        hlsurl: list[index]['hls_url'],
+                        avatar: list[index]['users'][0]['avatar'],
+                        username: list[index]['users'][0]['username']),
                   ),
                 );
               } else {

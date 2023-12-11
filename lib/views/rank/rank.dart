@@ -117,38 +117,38 @@ class RankState extends State<Rank> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const AndroidView(
-                  viewType: 'package com.example.billd_live_flutter',
-                ),
-                GestureDetector(
-                  child: Container(
-                    child: Text('录2制'),
-                  ),
-                  onTap: () async {
-                    // await startForegroundService();
-                    print('录制录制');
-                    // stream.listen((event) {
-                    //   print(event);
-                    //   print("ddd");
-                    // });
-                    // print('streamstream');
-                    // print(stream);
-                  },
-                ),
-                GestureDetector(
-                  child: Container(
-                    width: 20,
-                    child: Text(''),
-                  ),
-                ),
-                GestureDetector(
-                  child: Container(
-                    child: Text('停止'),
-                  ),
-                  onTap: () {
-                    print('停止');
-                  },
-                ),
+                // const AndroidView(
+                //   viewType: 'package com.example.billd_live_flutter',
+                // ),
+                // GestureDetector(
+                //   child: Container(
+                //     child: Text('录2制'),
+                //   ),
+                //   onTap: () async {
+                //     // await startForegroundService();
+                //     print('录制录制');
+                //     // stream.listen((event) {
+                //     //   print(event);
+                //     //   print("ddd");
+                //     // });
+                //     // print('streamstream');
+                //     // print(stream);
+                //   },
+                // ),
+                // GestureDetector(
+                //   child: Container(
+                //     width: 20,
+                //     child: Text(''),
+                //   ),
+                // ),
+                // GestureDetector(
+                //   child: Container(
+                //     child: Text('停止'),
+                //   ),
+                //   onTap: () {
+                //     print('停止');
+                //   },
+                // ),
                 Container(
                     margin: const EdgeInsets.fromLTRB(0, 120, 0, 0),
                     child: TopItem(

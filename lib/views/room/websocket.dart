@@ -12,12 +12,6 @@ class WsClass {
     print('====init===');
     socket.onConnect((data) {
       print('===onConnect===,$data,${socket.id}');
-      socket.emit('message', {
-        'socket_id': 'dfdffd',
-        'is_anchor': true,
-        'user_info': null,
-        'data': {},
-      });
     });
     socket.on(WsMsgTypeEnum['message']!, (data) {
       print('===message===,$data');

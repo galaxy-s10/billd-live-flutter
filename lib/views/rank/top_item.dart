@@ -43,7 +43,7 @@ class TopItem extends StatelessWidget {
                       transform: Matrix4.translationValues(0, -40, 0),
                       width: 80,
                       height: 80,
-                      child: item['user_avatar'] == ''
+                      child: item['users'][0]['avatar'] == ''
                           ? Container(
                               decoration: const BoxDecoration(
                                 color: themeColor,
@@ -53,7 +53,7 @@ class TopItem extends StatelessWidget {
                             )
                           : CircleAvatar(
                               backgroundImage:
-                                  NetworkImage(item['user_avatar']),
+                                  NetworkImage(item['users'][0]['avatar']),
                             ))
                 ],
               )),
@@ -66,7 +66,7 @@ class TopItem extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                     transform: Matrix4.translationValues(0, 45, 0),
                     child: Text(
-                      item['user_username'],
+                      item['users'][0]['username'],
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                           color: colorMap[rankNum]!,
@@ -143,8 +143,8 @@ class TopItem extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => Room(
                 hlsurl: item['hls_url'],
-                avatar: item['user_avatar'],
-                username: item['user_username'],
+                avatar: item['users'][0]['avatar'],
+                username: item['users'][0]['username'],
               ),
             ),
           );

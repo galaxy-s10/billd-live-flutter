@@ -34,7 +34,7 @@ class HomeState extends State<Home> {
     getData().then((_) {
       if (store.tabIndex.value == 0) {
         playVideo(
-            livedata['rows'][currentItemIndex.value]['live_room']['flv_url']);
+            livedata['rows'][currentItemIndex.value]['live_room']['hls_url']);
       }
     });
     store.tabIndex.listen((value) async {
@@ -42,12 +42,12 @@ class HomeState extends State<Home> {
         await stopVideo();
       } else {
         await playVideo(
-            livedata['rows'][currentItemIndex.value]['live_room']['flv_url']);
+            livedata['rows'][currentItemIndex.value]['live_room']['hls_url']);
       }
     });
     currentItemIndex.addListener(() async {
       await playVideo(
-          livedata['rows'][currentItemIndex.value]['live_room']['flv_url']);
+          livedata['rows'][currentItemIndex.value]['live_room']['hls_url']);
     });
   }
 
@@ -203,7 +203,7 @@ class HomeState extends State<Home> {
                               onTap: () async {
                                 await playVideo(livedata['rows']
                                         [currentItemIndex.value]['live_room']
-                                    ['flv_url']);
+                                    ['hls_url']);
                               },
                             )),
                         Align(
