@@ -68,21 +68,27 @@ class RTCState extends State<WebRTCWidget> {
     // );
     try {
       var offer = await _pc!.createOffer({});
+      print('打印offer');
+      print(offer);
       await _pc!.setLocalDescription(offer);
       var liveRoomInfo = store.userInfo['live_rooms'][0];
       print('offer成功');
       String streamurl =
-          '${liveRoomInfo['rtmp_url']}?token=${liveRoomInfo['key']}&type=2';
+          '${liveRoomInfo['rtmp_url']}?pushkey=${liveRoomInfo['key']}&pushtype=2';
       var srsres = await SRSApi.getRtcV1Publish(
           api: '/rtc/v1/publish/',
           sdp: offer.sdp,
           streamurl: streamurl,
           tid: Random().nextDouble().toString().substring(2));
       if (srsres['data']['code'] == 400) {
+        print('获取sdp错误');
         if (context.mounted) {
           BrnToast.show('推流错误', context);
         }
         return;
+      } else {
+        print('获取sdp成功');
+        print(srsres['data']['sdp']);
       }
       return srsres['data']['sdp'];
     } catch (e) {

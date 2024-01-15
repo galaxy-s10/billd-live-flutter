@@ -17,7 +17,7 @@ class UserState extends State<User> {
   // int? id;
   // String? password;
   int? id = 101;
-  String? password = '1234567';
+  String? password = '123456';
   bool isLogin = false;
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
