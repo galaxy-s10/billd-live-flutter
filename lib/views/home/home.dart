@@ -59,6 +59,7 @@ class HomeState extends State<Home> {
       if (res['code'] == 200) {
         setState(() {
           livedata = res['data'];
+          print(res['data']['rows'][0]['live_room']);
         });
       } else {
         err = true;
@@ -88,7 +89,7 @@ class HomeState extends State<Home> {
         loading = false;
       });
     } catch (e) {
-      print(e);
+      print('播放错误');
       if (context.mounted) {
         BrnToast.show('播放错误', context);
       }
@@ -110,9 +111,10 @@ class HomeState extends State<Home> {
       var str = livedata['rows'][index]['live_room']['cover_img'];
       if (str != null) {
         str = str.split(',')[1];
+        return MemoryImage(base64.decode(str));
       }
-      return MemoryImage(base64.decode(str));
     }
+    return null;
   }
 
   @override

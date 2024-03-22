@@ -53,6 +53,8 @@ class AreaState extends State<Area> {
           itemCount: areadata['total'],
           itemBuilder: (context, index) {
             if (areadata['rows'] != null) {
+              print('kkkksdads');
+              print(areadata["rows"][index]['area_live_rooms']);
               var len = areadata["rows"][index]['area_live_rooms'].length;
               return Container(
                 color: Colors.white,
@@ -104,6 +106,9 @@ class AreaState extends State<Area> {
                             // Item的宽高比，由于GridView的Item宽高并不由Item自身控制，默认情况下，交叉轴是横轴，因此Item的宽度均分屏幕宽度，这个时候设置childAspectRatio可以改变Item的高度，反之亦然；
                             childAspectRatio: (16 / 9) * 0.8,
                             children: List.generate(len, (indey) {
+                              print('99888');
+                              print(areadata["rows"][index]['area_live_rooms']
+                                  [indey]['live_room']);
                               var res = areadata["rows"][index]
                                   ['area_live_rooms'][indey]['live_room'];
                               return res == null

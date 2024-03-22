@@ -92,9 +92,10 @@ class RankState extends State<Room> {
       var str = livedata['rows'][index]['live_room']['cover_img'];
       if (str != null) {
         str = str.split(',')[1];
+        return MemoryImage(base64.decode(str));
       }
-      return MemoryImage(base64.decode(str));
     }
+    return null;
   }
 
   @override

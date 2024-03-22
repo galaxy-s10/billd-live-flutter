@@ -17,10 +17,9 @@ class AreaItemWidget extends StatelessWidget {
     var w = (store.screenWidth.value / 2) - 20;
     var h = w / (16 / 9);
 
-    var coverImg = item['cover_img'];
-    var avatar = item['users'][0]['avatar'];
-    if (coverImg != null) {
-      coverImg = coverImg.split(',')[1];
+    var imgurl = item['cover_img'];
+    if (imgurl == null || imgurl == '') {
+      imgurl = item['users'][0]['avatar'];
     }
     return Column(
       children: [
@@ -28,19 +27,15 @@ class AreaItemWidget extends StatelessWidget {
             width: w,
             height: h,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: coverImg == null
-                  ? Image.network(
-                      avatar,
-                      alignment: Alignment.center,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.memory(
-                      base64Decode(coverImg),
-                      alignment: Alignment.center,
-                      fit: BoxFit.cover,
-                    ),
-            )),
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  imgurl,
+                  alignment: Alignment.center,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Text('加载图片错误');
+                  },
+                ))),
         Container(
           width: w,
           alignment: Alignment.centerLeft,
