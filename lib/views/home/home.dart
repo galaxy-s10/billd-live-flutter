@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:billd_live_flutter/api/live_api.dart';
-import 'package:billd_live_flutter/main.dart';
+import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/stores/app.dart';
+import 'package:billd_live_flutter/utils/index.dart';
 
 import 'package:flutter/material.dart';
 import 'package:bruno/bruno.dart';
@@ -12,8 +12,6 @@ import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
 VideoPlayerController? _controller;
-double _aspectRatio = 16 / 9;
-var memoryImage;
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -24,30 +22,31 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   final Controller store = Get.put(Controller());
-  var livedata = {};
+  Map<String, dynamic> livedata = {};
   ValueNotifier<int> currentItemIndex = ValueNotifier(0);
   bool loading = false;
+  double videoRatio = normalVideoRatio;
 
   @override
   initState() {
     super.initState();
     getData().then((_) {
       if (store.tabIndex.value == 0) {
-        playVideo(
-            livedata['rows'][currentItemIndex.value]['live_room']['hls_url']);
+        playVideo(livedata['rows']?[currentItemIndex.value]?['live_room']
+            ?['hls_url']);
       }
     });
     store.tabIndex.listen((value) async {
       if (value != 0) {
         await stopVideo();
       } else {
-        await playVideo(
-            livedata['rows'][currentItemIndex.value]['live_room']['hls_url']);
+        await playVideo(livedata['rows']?[currentItemIndex.value]?['live_room']
+            ?['hls_url']);
       }
     });
     currentItemIndex.addListener(() async {
       await playVideo(
-          livedata['rows'][currentItemIndex.value]['live_room']['hls_url']);
+          livedata['rows']?[currentItemIndex.value]?['live_room']['hls_url']);
     });
   }
 
@@ -59,13 +58,12 @@ class HomeState extends State<Home> {
       if (res['code'] == 200) {
         setState(() {
           livedata = res['data'];
-          print(res['data']['rows'][0]['live_room']);
         });
       } else {
         err = true;
       }
     } catch (e) {
-      print(e);
+      billdPrint(e);
     }
     if (err && context.mounted) {
       BrnToast.show(res['message'], context);
@@ -77,19 +75,20 @@ class HomeState extends State<Home> {
     try {
       await stopVideo();
       String newurl = url.replaceAll('localhost', localIp);
+      billdPrint('newurl:$newurl');
       var res = VideoPlayerController.networkUrl(Uri.parse(newurl),
           videoPlayerOptions: VideoPlayerOptions());
       _controller = res;
-      memoryImage = hanldeMemoryImage(currentItemIndex.value);
       setState(() {});
       await res.initialize();
       await res.play();
-      _aspectRatio = res.value.aspectRatio;
+      videoRatio = res.value.aspectRatio;
       setState(() {
         loading = false;
       });
     } catch (e) {
-      print('播放错误');
+      billdPrint('播放错误');
+      billdPrint(e);
       if (context.mounted) {
         BrnToast.show('播放错误', context);
       }
@@ -106,31 +105,25 @@ class HomeState extends State<Home> {
     }
   }
 
-  hanldeMemoryImage(index) {
-    if (livedata['rows'] != null) {
-      var str = livedata['rows'][index]['live_room']['cover_img'];
-      if (str != null) {
-        str = str.split(',')[1];
-        return MemoryImage(base64.decode(str));
-      }
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (livedata['rows'] != null && store.tabIndex.value == 0) {
       final size = MediaQuery.of(context).size;
       double height =
           size.height - kBottomNavigationBarHeight - store.safeHeight.value;
+      var imgurl =
+          livedata['rows']?[currentItemIndex.value]?['live_room']['cover_img'];
+      if (imgurl == null || imgurl == '') {
+        imgurl = livedata['rows'][currentItemIndex.value]['user']['avatar'];
+      }
       return Container(
-          decoration: memoryImage != null
-              ? BoxDecoration(
+          decoration: imgurl == null || imgurl == ''
+              ? const BoxDecoration(color: Colors.black)
+              : BoxDecoration(
                   image: DecorationImage(
-                  image: memoryImage,
+                  image: billdNetworkImage(imgurl),
                   fit: BoxFit.cover,
-                ))
-              : const BoxDecoration(color: Colors.black),
+                )),
           width: store.screenWidth.value,
           height: height,
           child: ClipRect(
@@ -155,7 +148,7 @@ class HomeState extends State<Home> {
                                   ),
                                 )
                               : AspectRatio(
-                                  aspectRatio: _aspectRatio,
+                                  aspectRatio: videoRatio,
                                   child: VideoPlayer(_controller!),
                                 ),
                         ),
@@ -171,7 +164,7 @@ class HomeState extends State<Home> {
                             child: Container(
                                 transform: Matrix4.translationValues(0, -1, 0),
                                 child: Text(
-                                  '${livedata['rows'][currentItemIndex.value]['live_room']['name']}',
+                                  '${livedata['rows']?[currentItemIndex.value]?['live_room']['name']}',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,

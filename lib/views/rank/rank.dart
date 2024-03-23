@@ -6,11 +6,9 @@ import 'package:billd_live_flutter/views/rank/top_item.dart';
 import 'package:billd_live_flutter/views/room/websocket.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart' as rtc;
 
 class Rank extends StatefulWidget {
   const Rank({super.key});
@@ -26,7 +24,7 @@ const three = Color.fromRGBO(255, 178, 0, 1);
 class RankState extends State<Rank> {
   final Controller store = Get.put(Controller());
 
-  var liveroomdata = {};
+  Map<String, dynamic> liveroomdata = {};
   var topdata = [];
   var otherdata = [];
 
@@ -45,10 +43,10 @@ class RankState extends State<Rank> {
     //   Future future =
     //       channel.invokeMethod("your_method_name", {"msg": 'd44ty43y3'});
     //   // 打印执行的结果
-    //   print('打印执行的结果');
-    //   print(future.toString());
+    //   billdPrint('打印执行的结果');
+    //   billdPrint(future.toString());
     // } on PlatformException catch (e) {
-    //   print(e.toString());
+    //   billdPrint(e.toString());
     // }
   }
 
@@ -68,7 +66,7 @@ class RankState extends State<Rank> {
         err = true;
       }
     } catch (e) {
-      print(e);
+      billdPrint(e);
     }
     if (err && context.mounted) {
       BrnToast.show(res['message'], context);
@@ -126,13 +124,13 @@ class RankState extends State<Rank> {
                 //   ),
                 //   onTap: () async {
                 //     // await startForegroundService();
-                //     print('录制录制');
+                //     billdPrint('录制录制');
                 //     // stream.listen((event) {
-                //     //   print(event);
-                //     //   print("ddd");
+                //     //   billdPrint(event);
+                //     //   billdPrint("ddd");
                 //     // });
-                //     // print('streamstream');
-                //     // print(stream);
+                //     // billdPrint('streamstream');
+                //     // billdPrint(stream);
                 //   },
                 // ),
                 // GestureDetector(
@@ -146,7 +144,7 @@ class RankState extends State<Rank> {
                 //     child: Text('停止'),
                 //   ),
                 //   onTap: () {
-                //     print('停止');
+                //     billdPrint('停止');
                 //   },
                 // ),
                 Container(

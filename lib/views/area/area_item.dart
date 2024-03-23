@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,11 +15,11 @@ class AreaItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var w = (store.screenWidth.value / 2) - 20;
-    var h = w / (16 / 9);
+    var h = w / (normalVideoRatio);
 
     var imgurl = item['cover_img'];
     if (imgurl == null || imgurl == '') {
-      imgurl = item['users'][0]['avatar'];
+      imgurl = item['users']?[0]?['avatar'];
     }
     return Column(
       children: [
@@ -28,14 +28,21 @@ class AreaItemWidget extends StatelessWidget {
             height: h,
             child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  imgurl,
-                  alignment: Alignment.center,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Text('加载图片错误');
-                  },
-                ))),
+                child: imgurl == null || imgurl == ''
+                    ? Container(
+                        decoration: const BoxDecoration(
+                          color: themeColor,
+                          borderRadius: BorderRadius.all(Radius.circular(40)),
+                        ),
+                      )
+                    : Image.network(
+                        imgurl,
+                        alignment: Alignment.center,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Text('加载图片错误');
+                        },
+                      ))),
         Container(
           width: w,
           alignment: Alignment.centerLeft,

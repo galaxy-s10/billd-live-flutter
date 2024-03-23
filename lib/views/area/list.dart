@@ -1,4 +1,5 @@
 import 'package:billd_live_flutter/api/area_api.dart';
+import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/utils/index.dart';
 import 'package:billd_live_flutter/views/area/area_item.dart';
@@ -43,7 +44,7 @@ class AreaListState extends State<AreaList> {
         err = true;
       }
     } catch (e) {
-      print(e);
+      billdPrint(e);
     }
     if (err && context.mounted) {
       BrnToast.show(res['message'], context);
@@ -110,7 +111,8 @@ class AreaListState extends State<AreaList> {
                                       mainAxisSpacing: 0,
                                       crossAxisSpacing: 0,
                                       // Item的宽高比，由于GridView的Item宽高并不由Item自身控制，默认情况下，交叉轴是横轴，因此Item的宽度均分屏幕宽度，这个时候设置childAspectRatio可以改变Item的高度，反之亦然；
-                                      childAspectRatio: (16 / 9) * 0.8,
+                                      childAspectRatio:
+                                          (normalVideoRatio) * 0.8,
                                       children: List.generate(len, (indey) {
                                         var res = areadata["rows"][indey];
                                         return res == null

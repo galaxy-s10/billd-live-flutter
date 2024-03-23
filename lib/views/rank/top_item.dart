@@ -1,4 +1,5 @@
-import 'package:billd_live_flutter/main.dart';
+import 'package:billd_live_flutter/const.dart';
+import 'package:billd_live_flutter/utils/index.dart';
 import 'package:billd_live_flutter/views/room/room.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,8 @@ class TopItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const width = 126.0;
+    var imgurl = item?['users']?[0]?['avatar'];
+
     return GestureDetector(
       child: Stack(
         children: [
@@ -43,7 +46,7 @@ class TopItem extends StatelessWidget {
                       transform: Matrix4.translationValues(0, -40, 0),
                       width: 80,
                       height: 80,
-                      child: item['users'][0]['avatar'] == ''
+                      child: imgurl == null || imgurl == ''
                           ? Container(
                               decoration: const BoxDecoration(
                                 color: themeColor,
@@ -52,8 +55,7 @@ class TopItem extends StatelessWidget {
                               ),
                             )
                           : CircleAvatar(
-                              backgroundImage:
-                                  NetworkImage(item['users'][0]['avatar']),
+                              backgroundImage: billdNetworkImage(imgurl),
                             ))
                 ],
               )),
@@ -142,8 +144,9 @@ class TopItem extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => Room(
+                flvurl: item['flv_url'],
                 hlsurl: item['hls_url'],
-                avatar: item['users'][0]['avatar'],
+                avatar: imgurl,
                 username: item['users'][0]['username'],
               ),
             ),

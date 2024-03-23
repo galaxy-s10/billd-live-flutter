@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/views/home/home.dart';
 import 'package:billd_live_flutter/views/live/live.dart';
@@ -10,10 +11,6 @@ import 'package:bruno/bruno.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-const localIp = '192.168.1.103';
-const appTitle = 'billd直播';
-const themeColor = Color.fromRGBO(255, 215, 0, 1);
 
 void main() {
   runApp(const MyApp());

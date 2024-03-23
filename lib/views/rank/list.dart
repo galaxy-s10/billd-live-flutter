@@ -1,4 +1,5 @@
-import 'package:billd_live_flutter/main.dart';
+import 'package:billd_live_flutter/const.dart';
+import 'package:billd_live_flutter/utils/index.dart';
 import 'package:billd_live_flutter/views/room/room.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class RankListState extends State<RankList> {
         itemCount: list.length,
         padding: EdgeInsets.zero,
         itemBuilder: (context, index) {
+          var imgurl = list[index]['users'][0]['avatar'];
           return GestureDetector(
             child: Container(
               padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
@@ -55,22 +57,21 @@ class RankListState extends State<RankList> {
                               fontStyle: FontStyle.italic),
                         ),
                       )),
-                  list[index]['users'][0]['avatar'] != ''
-                      ? SizedBox(
-                          width: 26,
-                          height: 26,
-                          child: CircleAvatar(
-                            backgroundImage:
-                                NetworkImage(list[index]['users'][0]['avatar']),
-                          ))
-                      : Container(
+                  imgurl == null || imgurl == ''
+                      ? Container(
                           width: 26,
                           height: 26,
                           decoration: const BoxDecoration(
                             color: themeColor,
                             borderRadius: BorderRadius.all(Radius.circular(15)),
                           ),
-                        ),
+                        )
+                      : SizedBox(
+                          width: 26,
+                          height: 26,
+                          child: CircleAvatar(
+                            backgroundImage: billdNetworkImage(imgurl),
+                          )),
                   Container(
                     margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                     width: 150,
@@ -110,6 +111,7 @@ class RankListState extends State<RankList> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => Room(
+                        flvurl: list[index]['flv_url'],
                         hlsurl: list[index]['hls_url'],
                         avatar: list[index]['users'][0]['avatar'],
                         username: list[index]['users'][0]['username']),

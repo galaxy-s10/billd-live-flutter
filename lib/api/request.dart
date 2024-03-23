@@ -1,16 +1,11 @@
+import 'package:billd_live_flutter/const.dart';
 import 'package:get/get.dart' as get_x;
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:dio/dio.dart';
-
-// const baseUrl = 'https://api.hsslive.cn/prodapi/';
-const baseUrl = 'https://live-api.hsslive.cn';
-// const baseUrl = 'http://192.168.1.44:4300';
-// const baseUrl = 'http://${localIp}:4300';
-const timeout = 5;
+import 'package:billd_live_flutter/utils/index.dart';
 
 class HttpRequest {
-  static BaseOptions baseOptions = BaseOptions(
-      connectTimeout: const Duration(seconds: timeout), baseUrl: baseUrl);
+  static BaseOptions baseOptions = BaseOptions(baseUrl: axiosBaseUrl);
   static Dio dio = Dio(baseOptions);
 
   static Future get(url, {Map<String, dynamic>? params}) async {
@@ -41,12 +36,12 @@ class HttpRequest {
           },
           onResponse: (Response response, ResponseInterceptorHandler handler) {
             // 如果你想终止请求并触发一个错误，你可以使用 `handler.reject(error)`。
-            print('====onResponse====');
+            billdPrint('====onResponse====');
             return handler.next(response);
           },
           onError: (DioException e, ErrorInterceptorHandler handler) {
             // 如果你想完成请求并返回一些自定义数据，你可以使用 `handler.resolve(response)`。
-            print('====onError====');
+            billdPrint('====onError====');
             handler.resolve(e.response!);
             // return handler.next(e);
           },

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:billd_live_flutter/utils/index.dart';
+
 import 'package:billd_live_flutter/api/live_api.dart';
 import 'package:billd_live_flutter/api/srs_api.dart';
 import 'package:billd_live_flutter/stores/app.dart';
@@ -19,12 +19,11 @@ class WebRTCWidget extends StatefulWidget {
   createState() => RTCState();
 }
 
-enum LIVE_STATUS { nolive, living }
+enum LiveStatus { nolive, living }
 
 class RTCState extends State<WebRTCWidget> {
   RTCVideoRenderer? _localRenderer;
   RTCPeerConnection? _pc;
-  bool showIcon = true;
   MediaStream? _stream;
   final Controller store = get_x.Get.put(Controller());
 
@@ -36,23 +35,24 @@ class RTCState extends State<WebRTCWidget> {
 
   var modeIndex = 0;
   int countdown = 3;
-  // var liveStatus = ValueNotifier(LIVE_STATUS.nolive);
-  var liveStatus = LIVE_STATUS.nolive;
+  // var status = ValueNotifier(LiveStatus.nolive);
+  var status = LiveStatus.nolive;
 
   getAllDev() async {
     var res = await navigator.mediaDevices.enumerateDevices();
     for (var element in res) {
-      print('element,${element.kind},${element.label},---${element.deviceId}');
+      billdPrint(
+          'element,${element.kind},${element.label},---${element.deviceId}');
     }
     return res;
   }
 
   @override
   initState() {
-    print('initState-webrtc');
+    billdPrint('initState-webrtc');
     super.initState();
     getAllDev();
-    // liveStatus.addListener(() async {
+    // status.addListener(() async {
     //   setState(() {});
     // });
   }
@@ -68,11 +68,11 @@ class RTCState extends State<WebRTCWidget> {
     // );
     try {
       var offer = await _pc!.createOffer({});
-      print('打印offer');
-      print(offer);
+      billdPrint('打印offer');
+      billdPrint(offer);
       await _pc!.setLocalDescription(offer);
       var liveRoomInfo = store.userInfo['live_rooms'][0];
-      print('offer成功');
+      billdPrint('offer成功');
       String streamurl =
           '${liveRoomInfo['rtmp_url']}?pushkey=${liveRoomInfo['key']}&pushtype=2';
       var srsres = await SRSApi.getRtcV1Publish(
@@ -81,29 +81,29 @@ class RTCState extends State<WebRTCWidget> {
           streamurl: streamurl,
           tid: Random().nextDouble().toString().substring(2));
       if (srsres['data']['code'] == 400) {
-        print('获取sdp错误');
+        billdPrint('获取sdp错误');
         if (context.mounted) {
           BrnToast.show('推流错误', context);
         }
         return;
       } else {
-        print('获取sdp成功');
-        print(srsres['data']['sdp']);
+        billdPrint('获取sdp成功');
+        billdPrint(srsres['data']['sdp']);
       }
       return srsres['data']['sdp'];
     } catch (e) {
-      print(e);
-      print('offer失败');
+      billdPrint(e);
+      billdPrint('offer失败');
     }
   }
 
   handleAnswer(sdp) async {
     try {
       await _pc!.setRemoteDescription(RTCSessionDescription(sdp, 'answer'));
-      print('设置远程描述成功');
+      billdPrint('设置远程描述成功');
     } catch (e) {
-      print('设置远程描述失败');
-      print(e);
+      billdPrint('设置远程描述失败');
+      billdPrint(e);
     }
   }
 
@@ -142,10 +142,10 @@ class RTCState extends State<WebRTCWidget> {
         // try {
         //   bool started = await FlutterScreenRecording.startRecordScreenAndAudio(
         //       'billdtestvideo');
-        //   print('pppppp3,$started');
+        //   billdPrint('pppppp3,$started');
         // } catch (e) {
-        //   print(e);
-        //   print('pppppp4');
+        //   billdPrint(e);
+        //   billdPrint('pppppp4');
         // }
 
         // var audiostream = await navigator.mediaDevices.getUserMedia({
@@ -158,7 +158,7 @@ class RTCState extends State<WebRTCWidget> {
       }
       if (stream != null) {
         stream.getTracks().forEach((track) async {
-          print('pppppp,${track.kind},${track.label}');
+          billdPrint('pppppp,${track.kind},${track.label}');
           await _pc?.addTrack(track, stream!);
         });
         setState(() {
@@ -167,7 +167,7 @@ class RTCState extends State<WebRTCWidget> {
         });
       }
     } catch (e) {
-      print(e);
+      billdPrint(e);
       if (context.mounted) {
         BrnToast.show('拒绝授权', context);
       }
@@ -230,9 +230,9 @@ class RTCState extends State<WebRTCWidget> {
       var sdp = await handleOffer();
       if (sdp != null) {
         handleAnswer(sdp);
-        // liveStatus.value = LIVE_STATUS.living;
+        // status.value = LiveStatus.living;
         setState(() {
-          liveStatus = LIVE_STATUS.living;
+          status = LiveStatus.living;
         });
       } else {
         if (context.mounted) {
@@ -249,7 +249,7 @@ class RTCState extends State<WebRTCWidget> {
           // await LiveApi.getCloseLive();
           await handleCloseLive();
           setState(() {
-            liveStatus = LIVE_STATUS.nolive;
+            status = LiveStatus.nolive;
           });
           if (context.mounted) {
             BrnToast.show('断开直播成功', context);
@@ -349,8 +349,8 @@ class RTCState extends State<WebRTCWidget> {
             ],
           ),
         ),
-        // liveStatus.value == LIVE_STATUS.nolive
-        liveStatus == LIVE_STATUS.nolive
+        // status.value == LiveStatus.nolive
+        status == LiveStatus.nolive
             ? BrnBigGhostButton(
                 title: '开始直播',
                 onTap: () async {
@@ -397,7 +397,7 @@ class RTCState extends State<WebRTCWidget> {
                       onConfirm: () async {
                         await handleCloseLive();
                         setState(() {
-                          liveStatus = LIVE_STATUS.nolive;
+                          status = LiveStatus.nolive;
                           BrnToast.show('关闭直播成功', context);
                           Navigator.pop(context);
                         });
@@ -414,7 +414,7 @@ class Live extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    handleRequestPermissions();
+    billdRequestPermissions();
     return const SafeArea(
         child: Scaffold(
       body: WebRTCWidget(),

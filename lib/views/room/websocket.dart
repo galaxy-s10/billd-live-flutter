@@ -1,5 +1,6 @@
 import 'package:billd_live_flutter/enum.dart';
 import 'package:socket_io_client/socket_io_client.dart' as ws;
+import 'package:billd_live_flutter/utils/index.dart';
 
 class WsClass {
   late ws.Socket socket;
@@ -9,21 +10,21 @@ class WsClass {
         ws.OptionBuilder().setTransports(['websocket']).build());
   }
   init() {
-    print('====init===');
+    billdPrint('====init===');
     socket.onConnect((data) {
-      print('===onConnect===,$data,${socket.id}');
+      billdPrint('===onConnect===,$data,${socket.id}');
     });
     socket.on(WsMsgTypeEnum['message']!, (data) {
-      print('===message===,$data');
-      print(data);
+      billdPrint('===message===,$data');
+      billdPrint(data);
     });
     socket.onDisconnect((_) {
-      print('===onDisconnect===');
-      print(_);
+      billdPrint('===onDisconnect===');
+      billdPrint(_);
     });
     socket.on('fromServer', (_) {
-      print('===fromServer===');
-      print(_);
+      billdPrint('===fromServer===');
+      billdPrint(_);
     });
   }
 }

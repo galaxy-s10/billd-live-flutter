@@ -1,10 +1,12 @@
 import 'package:billd_live_flutter/api/user_api.dart';
 import 'package:billd_live_flutter/components/Loading/index.dart';
+import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/views/live/live.dart';
 import 'package:flutter/material.dart';
 import 'package:bruno/bruno.dart';
 import 'package:get/get.dart';
+import 'package:billd_live_flutter/utils/index.dart';
 
 class User extends StatefulWidget {
   const User({super.key});
@@ -22,7 +24,7 @@ class UserState extends State<User> {
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // 检测页面是否在前台
-    print('检测页面是否在前台user-${state}');
+    billdPrint('检测页面是否在前台user-$state');
   }
 
   @override
@@ -34,9 +36,17 @@ class UserState extends State<User> {
           ? Container(
               padding: const EdgeInsets.all(20),
               child: Column(children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(store.userInfo['avatar']),
-                ),
+                store.userInfo['avatar'] == ''
+                    ? Container(
+                        decoration: const BoxDecoration(
+                          color: themeColor,
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                      )
+                    : CircleAvatar(
+                        backgroundImage:
+                            billdNetworkImage(store.userInfo['avatar']),
+                      ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),
                   child: Obx(() => Text('${store.userInfo['username']}')),
@@ -162,7 +172,7 @@ class UserState extends State<User> {
                             }
                           }
                         } catch (e) {
-                          print(e);
+                          billdPrint(e);
                         } finally {
                           BilldLoading.stop();
                         }

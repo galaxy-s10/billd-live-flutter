@@ -3,7 +3,7 @@
     <img
       width="200"
       src="https://resource.hsslive.cn/billd-live/image/240160ddbc14367f7e0126c1f5b09b69.svg"
-      alt="Billd-Live logo"
+      alt="logo"
     />
   </a>
 </p>
@@ -66,6 +66,10 @@ Tools • Dart 3.1.4 • DevTools 2.25.0
 ➜  billd-live-flutter git:(master) ✗ dart --version
 Dart SDK version: 3.1.4 (stable) (Tue Oct 17 14:55:53 2023 +0000) on "macos_arm64"
 ```
+
+## 接口
+
+[https://live-api.hsslive.cn](https://live-api.hsslive.cn)
 
 ## 调试
 

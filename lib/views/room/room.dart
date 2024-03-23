@@ -1,19 +1,20 @@
-import 'dart:convert';
-
-import 'package:billd_live_flutter/main.dart';
+import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 import 'package:socket_io_client/socket_io_client.dart' as ws;
+import 'package:billd_live_flutter/utils/index.dart';
 
 class Room extends StatefulWidget {
   final String hlsurl;
+  final String flvurl;
   final String avatar;
   final String username;
 
   const Room({
+    required this.flvurl,
     required this.hlsurl,
     required this.avatar,
     required this.username,
@@ -24,18 +25,16 @@ class Room extends StatefulWidget {
   State<StatefulWidget> createState() => RankState();
 }
 
-VideoPlayerController? _controller;
-double _aspectRatio = 16 / 9;
-var memoryImage;
-
 class RankState extends State<Room> {
   var loading = false;
   final Controller store = Get.put(Controller());
-  var livedata = {};
+  String flvurl = '';
   String hlsurl = '';
   String avatar = '';
   String username = '';
-  late ws.Socket? socket;
+  ws.Socket? socket;
+  var videoRatio = normalVideoRatio;
+  VideoPlayerController? _controller;
 
   @override
   void initState() {
@@ -50,8 +49,10 @@ class RankState extends State<Room> {
   void dispose() {
     super.dispose();
     stopVideo();
-    socket?.close();
-    socket = null;
+    if (socket != null) {
+      socket?.close();
+      socket = null;
+    }
   }
 
   playVideo(String url) async {
@@ -64,16 +65,15 @@ class RankState extends State<Room> {
       var res = VideoPlayerController.networkUrl(Uri.parse(newurl),
           videoPlayerOptions: VideoPlayerOptions());
       _controller = res;
-      memoryImage = hanldeMemoryImage('value');
       setState(() {});
       await res.initialize();
       await res.play();
-      _aspectRatio = res.value.aspectRatio;
+      videoRatio = res.value.aspectRatio;
       setState(() {
         loading = false;
       });
     } catch (e) {
-      print(e);
+      billdPrint(e);
       if (context.mounted) {
         BrnToast.show('播放错误', context);
       }
@@ -85,17 +85,6 @@ class RankState extends State<Room> {
       await _controller!.dispose();
       _controller = null;
     }
-  }
-
-  hanldeMemoryImage(index) {
-    if (livedata['rows'] != null) {
-      var str = livedata['rows'][index]['live_room']['cover_img'];
-      if (str != null) {
-        str = str.split(',')[1];
-        return MemoryImage(base64.decode(str));
-      }
-    }
-    return null;
   }
 
   @override
@@ -110,21 +99,21 @@ class RankState extends State<Room> {
             padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
             child: Row(
               children: [
-                avatar != ''
-                    ? SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: CircleAvatar(
-                          backgroundImage: NetworkImage(avatar),
-                        ))
-                    : Container(
+                avatar == ''
+                    ? Container(
                         width: 40,
                         height: 40,
                         decoration: const BoxDecoration(
                           color: themeColor,
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
-                      ),
+                      )
+                    : SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: CircleAvatar(
+                          backgroundImage: billdNetworkImage(avatar),
+                        )),
                 Container(
                     width: 200,
                     margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -148,7 +137,7 @@ class RankState extends State<Room> {
                 )
               : _controller != null
                   ? AspectRatio(
-                      aspectRatio: _aspectRatio,
+                      aspectRatio: videoRatio,
                       child: VideoPlayer(_controller!),
                     )
                   : Container(
