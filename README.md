@@ -86,7 +86,7 @@ flutter pub get
 flutter build apk --release
 ```
 
-### 苹果
+### 苹果（TODO）
 
 ```sh
 flutter build ipa --release
