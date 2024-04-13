@@ -1,5 +1,5 @@
 // websocket消息类型
-const WsMsgTypeEnum = {
+const wsMsgTypeEnum = {
   /// 用户进入聊天
   'join': 'join',
 

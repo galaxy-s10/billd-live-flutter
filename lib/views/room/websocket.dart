@@ -14,7 +14,7 @@ class WsClass {
     socket.onConnect((data) {
       billdPrint('===onConnect===,$data,${socket.id}');
     });
-    socket.on(WsMsgTypeEnum['message']!, (data) {
+    socket.on(wsMsgTypeEnum['message']!, (data) {
       billdPrint('===message===,$data');
       billdPrint(data);
     });

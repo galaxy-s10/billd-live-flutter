@@ -59,12 +59,13 @@ billd 直播间，可以看直播和发布直播。
 
 ```sh
 ➜  billd-live-flutter git:(master) ✗ flutter --version
-Flutter 3.13.8 • channel stable • https://github.com/flutter/flutter.git
-Framework • revision 6c4930c4ac (4 天前) • 2023-10-18 10:57:55 -0500
-Engine • revision 767d8c75e8
-Tools • Dart 3.1.4 • DevTools 2.25.0
+Flutter 3.19.3 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision ba39319843 (2 weeks ago) • 2024-03-07 15:22:21 -0600
+Engine • revision 2e4ba9c6fb
+Tools • Dart 3.3.1 • DevTools 2.31.1
 ➜  billd-live-flutter git:(master) ✗ dart --version
-Dart SDK version: 3.1.4 (stable) (Tue Oct 17 14:55:53 2023 +0000) on "macos_arm64"
+Dart SDK version: 3.3.1 (stable) (Wed Mar 6 13:09:19 2024 +0000) on "macos_arm64"
+➜  billd-live-flutter git:(master) ✗
 ```
 
 ## 接口
@@ -79,6 +80,14 @@ flutter pub get
 
 ## 打包
 
+### 安卓
+
 ```sh
 flutter build apk --release
+```
+
+### 苹果
+
+```sh
+flutter build ipa --release
 ```

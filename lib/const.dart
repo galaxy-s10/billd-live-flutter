@@ -6,6 +6,6 @@ const themeColor = Color.fromRGBO(255, 215, 0, 1);
 
 const axiosBaseUrl = 'https://live-api.hsslive.cn';
 // const axiosBaseUrl = 'http://${localIp}:4300';
-const axiosTimeout = 5;
+const axiosTimeoutSeconds = 5;
 
 const normalVideoRatio = 16 / 9;

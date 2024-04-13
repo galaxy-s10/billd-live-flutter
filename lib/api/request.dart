@@ -5,7 +5,9 @@ import 'package:dio/dio.dart';
 import 'package:billd_live_flutter/utils/index.dart';
 
 class HttpRequest {
-  static BaseOptions baseOptions = BaseOptions(baseUrl: axiosBaseUrl);
+  static BaseOptions baseOptions = BaseOptions(
+      baseUrl: axiosBaseUrl,
+      connectTimeout: const Duration(seconds: axiosTimeoutSeconds));
   static Dio dio = Dio(baseOptions);
 
   static Future get(url, {Map<String, dynamic>? params}) async {

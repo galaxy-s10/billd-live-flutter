@@ -32,7 +32,7 @@ class AreaItemWidget extends StatelessWidget {
                     ? Container(
                         decoration: const BoxDecoration(
                           color: themeColor,
-                          borderRadius: BorderRadius.all(Radius.circular(40)),
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
                         ),
                       )
                     : Image.network(
