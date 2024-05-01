@@ -113,15 +113,27 @@ class RTCState extends State<WebRTCWidget> {
       if (mode[modeIndex]['value'] == 'front') {
         stream = await navigator.mediaDevices.getUserMedia({
           'video': {
-            // 'mandatory': {
-            //   'maxWidth': '1280', // 设置最大宽度
-            //   'maxHeight': '720', // 设置最大高度
-            // },
-            'facingMode': 'user', // 指定前置摄像头
+            'mandatory': {
+              'maxWidth': '360', // 设置最大宽度
+              'maxHeight': '360', // 设置最大高度
+              'minWidth': '360',
+              'minHeight': '360',
+              // 'contentHint': 'detail'
+              'facingMode': 'user', // 指定前置摄像头
+            },
           },
           'audio': true,
-          'facingMode': 'user', // 指定前置摄像头
+          // 'facingMode': 'user', // 指定前置摄像头
         });
+        // stream.getVideoTracks().forEach((element) {
+        //   print(element.kind);
+        //   if (element.kind == 'video') {
+        //     element.applyConstraints({
+        //       'height': {'ideal': 720},
+        //       // 'frameRate': {'ideal': 20},
+        //     });
+        //   }
+        // });
       } else if (mode[modeIndex]['value'] == 'back') {
         stream = await navigator.mediaDevices.getUserMedia({
           'video': {
@@ -138,23 +150,6 @@ class RTCState extends State<WebRTCWidget> {
           'video': true,
           'audio': true,
         });
-
-        // try {
-        //   bool started = await FlutterScreenRecording.startRecordScreenAndAudio(
-        //       'billdtestvideo');
-        //   billdPrint('pppppp3,$started');
-        // } catch (e) {
-        //   billdPrint(e);
-        //   billdPrint('pppppp4');
-        // }
-
-        // var audiostream = await navigator.mediaDevices.getUserMedia({
-        //   'video': false,
-        //   'audio': true,
-        // });
-        // audiostream.getTracks().forEach((track) async {
-        //   await _pc?.addTrack(track, audiostream);
-        // });
       }
       if (stream != null) {
         stream.getTracks().forEach((track) async {
@@ -167,6 +162,7 @@ class RTCState extends State<WebRTCWidget> {
         });
       }
     } catch (e) {
+      billdPrint('报错了');
       billdPrint(e);
       if (context.mounted) {
         BrnToast.show('拒绝授权', context);
