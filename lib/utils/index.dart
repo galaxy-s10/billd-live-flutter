@@ -1,9 +1,24 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:billd_live_flutter/const.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+billdGetRangeRandom(int min, int max) {
+  return (Random().nextDouble() * (max - min + 1)).floor() + min;
+}
+
+billdGetRandomString(int length) {
+  const str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var res = '';
+  for (var i = 0; i < length; i += 1) {
+    res += String.fromCharCode(
+        str.codeUnitAt(billdGetRangeRandom(0, str.length - 1)));
+  }
+  return res;
+}
 
 billdPrint(data) {
   // ignore: avoid_print

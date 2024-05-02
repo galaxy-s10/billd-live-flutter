@@ -87,7 +87,7 @@ class AreaListState extends State<AreaList> {
               : SizedBox(
                   height: h,
                   child: ListView.builder(
-                      itemCount: areadata['total'],
+                      itemCount: 1,
                       itemBuilder: (context, index) {
                         var len = areadata["rows"].length;
                         return Container(

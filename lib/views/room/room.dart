@@ -1,10 +1,10 @@
 import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/stores/app.dart';
+import 'package:billd_live_flutter/views/room/websocket.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
-import 'package:socket_io_client/socket_io_client.dart' as ws;
 import 'package:billd_live_flutter/utils/index.dart';
 
 class Room extends StatefulWidget {
@@ -32,13 +32,14 @@ class RankState extends State<Room> {
   String hlsurl = '';
   String avatar = '';
   String username = '';
-  ws.Socket? socket;
+  WsClass ws = WsClass();
   var videoRatio = normalVideoRatio;
   VideoPlayerController? _controller;
 
   @override
   void initState() {
     super.initState();
+    ws.init();
     hlsurl = widget.hlsurl;
     avatar = widget.avatar;
     username = widget.username;
@@ -49,10 +50,7 @@ class RankState extends State<Room> {
   void dispose() {
     super.dispose();
     stopVideo();
-    if (socket != null) {
-      socket?.close();
-      socket = null;
-    }
+    ws.close();
   }
 
   playVideo(String url) async {
@@ -142,7 +140,20 @@ class RankState extends State<Room> {
                     )
                   : Container(
                       color: Colors.white,
-                    )
+                    ),
+          GestureDetector(
+            child: const Text(
+              'send',
+              style: TextStyle(color: themeColor, fontWeight: FontWeight.bold),
+            ),
+            onTap: () {
+              ws.send('join', billdGetRandomString(8), {
+                'live_room_id': 123456,
+                'socket_id': ws.socket.id,
+                'isRemoteDesk': true,
+              });
+            },
+          )
         ],
       ),
     )));

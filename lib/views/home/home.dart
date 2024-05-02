@@ -27,6 +27,8 @@ class HomeState extends State<Home> {
   bool loading = false;
   double videoRatio = normalVideoRatio;
 
+  String line = 'hls';
+
   @override
   initState() {
     super.initState();
@@ -218,7 +220,7 @@ class HomeState extends State<Home> {
                                         color: Colors.white,
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold),
-                                  )
+                                  ),
                                 ]),
                               ),
                               onTap: () async {
@@ -227,6 +229,45 @@ class HomeState extends State<Home> {
                                   if (context.mounted) {
                                     BrnToast.show('更新直播列表成功', context);
                                   }
+                                }
+                              },
+                            )),
+                        Align(
+                            alignment: Alignment.bottomRight,
+                            child: GestureDetector(
+                              child: Container(
+                                height: 50,
+                                margin:
+                                    const EdgeInsets.fromLTRB(0, 0, 20, 160),
+                                child: Column(children: [
+                                  Image.asset(
+                                    "assets/images/home/switch.png",
+                                    width: 30,
+                                  ),
+                                  Text(
+                                    line == 'flv' ? 'hls' : 'flv',
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ]),
+                              ),
+                              onTap: () async {
+                                if (line == 'flv') {
+                                  setState(() {
+                                    line = 'hls';
+                                  });
+                                  await playVideo(livedata['rows']
+                                          [currentItemIndex.value]['live_room']
+                                      ['hls_url']);
+                                } else if (line == 'hls') {
+                                  setState(() {
+                                    line = 'flv';
+                                  });
+                                  await playVideo(livedata['rows']
+                                          [currentItemIndex.value]['live_room']
+                                      ['flv_url']);
                                 }
                               },
                             ))
@@ -252,7 +293,7 @@ class HomeState extends State<Home> {
             ),
           ));
     } else {
-      return Container();
+      return const Text('暂无直播');
     }
   }
 }

@@ -114,10 +114,10 @@ class RTCState extends State<WebRTCWidget> {
         stream = await navigator.mediaDevices.getUserMedia({
           'video': {
             'mandatory': {
-              'maxWidth': '360', // 设置最大宽度
-              'maxHeight': '360', // 设置最大高度
-              'minWidth': '360',
-              'minHeight': '360',
+              // 'maxWidth': '360', // 设置最大宽度
+              // 'maxHeight': '360', // 设置最大高度
+              // 'minWidth': '360',
+              // 'minHeight': '360',
               // 'contentHint': 'detail'
               'facingMode': 'user', // 指定前置摄像头
             },
@@ -129,7 +129,8 @@ class RTCState extends State<WebRTCWidget> {
         //   print(element.kind);
         //   if (element.kind == 'video') {
         //     element.applyConstraints({
-        //       'height': {'ideal': 720},
+        //       'height': '720',
+        //       // 'height': {'ideal': 720},
         //       // 'frameRate': {'ideal': 20},
         //     });
         //   }
@@ -153,7 +154,6 @@ class RTCState extends State<WebRTCWidget> {
       }
       if (stream != null) {
         stream.getTracks().forEach((track) async {
-          billdPrint('pppppp,${track.kind},${track.label}');
           await _pc?.addTrack(track, stream!);
         });
         setState(() {
