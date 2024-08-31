@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:billd_live_flutter/api/live_api.dart';
 import 'package:billd_live_flutter/const.dart';
+import 'package:billd_live_flutter/enum.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/utils/index.dart';
 
@@ -34,21 +35,21 @@ class HomeState extends State<Home> {
     super.initState();
     getData().then((_) {
       if (store.tabIndex.value == 0) {
-        playVideo(livedata['rows']?[currentItemIndex.value]?['live_room']
-            ?['hls_url']);
+        playVideo(handlePlayUrl(
+            livedata['rows']?[currentItemIndex.value]?['live_room'], 'hls'));
       }
     });
     store.tabIndex.listen((value) async {
       if (value != 0) {
         await stopVideo();
       } else {
-        await playVideo(livedata['rows']?[currentItemIndex.value]?['live_room']
-            ?['hls_url']);
+        await playVideo(handlePlayUrl(
+            livedata['rows']?[currentItemIndex.value]?['live_room'], 'hls'));
       }
     });
     currentItemIndex.addListener(() async {
-      await playVideo(
-          livedata['rows']?[currentItemIndex.value]?['live_room']['hls_url']);
+      await playVideo(handlePlayUrl(
+          livedata['rows']?[currentItemIndex.value]?['live_room'], 'hls'));
     });
   }
 
@@ -71,6 +72,34 @@ class HomeState extends State<Home> {
       BrnToast.show(res['message'], context);
     }
     return err;
+  }
+
+  handlePlayUrl(item, type) {
+    var url = '';
+    if (type == 'flv') {
+      if (item['cdn'] == liveRoomUseCDNEnum['yes']) {
+        if (item['type'] == liveRoomTypeEnum['tencent_css'] ||
+            item['type'] == liveRoomTypeEnum['tencent_css_pk']) {
+          url = item['cdn_flv_url'];
+        } else {
+          url = item['flv_url'];
+        }
+      } else {
+        url = item['flv_url'];
+      }
+    } else if (type == 'hls') {
+      if (item['cdn'] == liveRoomUseCDNEnum['yes']) {
+        if (item['type'] == liveRoomTypeEnum['tencent_css'] ||
+            item['type'] == liveRoomTypeEnum['tencent_css_pk']) {
+          url = item['cdn_hls_url'];
+        } else {
+          url = item['hls_url'];
+        }
+      } else {
+        url = item['hls_url'];
+      }
+    }
+    return url;
   }
 
   playVideo(String url) async {
@@ -198,9 +227,10 @@ class HomeState extends State<Home> {
                                 ]),
                               ),
                               onTap: () async {
-                                await playVideo(livedata['rows']
-                                        [currentItemIndex.value]['live_room']
-                                    ['hls_url']);
+                                await playVideo(handlePlayUrl(
+                                    livedata['rows'][currentItemIndex.value]
+                                        ['live_room'],
+                                    'hls'));
                               },
                             )),
                         Align(
@@ -258,16 +288,18 @@ class HomeState extends State<Home> {
                                   setState(() {
                                     line = 'hls';
                                   });
-                                  await playVideo(livedata['rows']
-                                          [currentItemIndex.value]['live_room']
-                                      ['hls_url']);
+                                  await playVideo(handlePlayUrl(
+                                      livedata['rows'][currentItemIndex.value]
+                                          ['live_room'],
+                                      'hls'));
                                 } else if (line == 'hls') {
                                   setState(() {
                                     line = 'flv';
                                   });
-                                  await playVideo(livedata['rows']
-                                          [currentItemIndex.value]['live_room']
-                                      ['flv_url']);
+                                  await playVideo(handlePlayUrl(
+                                      livedata['rows'][currentItemIndex.value]
+                                          ['live_room'],
+                                      'flv'));
                                 }
                               },
                             ))

@@ -6,8 +6,9 @@ class AreaApi {
     return res;
   }
 
-  static getAreaLiveRoomList(id) async {
-    var res = await HttpRequest.get('/area/live_room_list', params: {'id': id});
+  static getAreaLiveRoomList(id, nowPage, pageSize) async {
+    var res = await HttpRequest.get('/area/live_room_list',
+        params: {'id': id, 'nowPage': nowPage, 'pageSize': pageSize});
     return res;
   }
 }

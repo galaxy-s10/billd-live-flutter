@@ -55,7 +55,6 @@ class AreaState extends State<Area> {
           itemBuilder: (context, index) {
             if (areadata['rows'] != null) {
               var len = areadata["rows"][index]['area_live_rooms'].length;
-              print('$len,-------');
               return Container(
                 color: Colors.white,
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),

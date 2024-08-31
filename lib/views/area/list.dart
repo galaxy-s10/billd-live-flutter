@@ -18,15 +18,27 @@ class AreaList extends StatefulWidget {
 
 class AreaListState extends State<AreaList> {
   Map<String, dynamic> areadata = {};
+  List<dynamic> list = [];
   final Controller store = Get.put(Controller());
 
   var id;
   var areaName;
+  var nowPage = 1;
+  var pageSize = 50;
+  ScrollController _controller = ScrollController(); //listview的控制器
 
   @override
   void initState() {
     id = widget.id;
     areaName = widget.areaName;
+    _controller.addListener(() {
+      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+        print('滑动到了最底部');
+        nowPage += 1;
+        getData();
+      }
+    });
+
     super.initState();
     getData();
   }
@@ -35,10 +47,11 @@ class AreaListState extends State<AreaList> {
     var res;
     bool err = false;
     try {
-      res = await AreaApi.getAreaLiveRoomList(id);
+      res = await AreaApi.getAreaLiveRoomList(id, nowPage, pageSize);
       if (res['code'] == 200) {
         setState(() {
           areadata = res['data'];
+          list.addAll(res['data']['rows']);
         });
       } else {
         err = true;
@@ -56,7 +69,7 @@ class AreaListState extends State<AreaList> {
     final size = MediaQuery.of(context).size;
     var titleHeight = 40.0;
     var h = size.height - store.safeHeight.value - titleHeight;
-    if (areadata['rows'] == null) {
+    if (list.length == 0) {
       return fullLoading();
     }
     return Scaffold(
@@ -73,7 +86,7 @@ class AreaListState extends State<AreaList> {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ),
-          areadata['rows'].length == 0
+          list.length == 0
               ? SizedBox(
                   height: h,
                   child: ListView(
@@ -87,9 +100,10 @@ class AreaListState extends State<AreaList> {
               : SizedBox(
                   height: h,
                   child: ListView.builder(
+                      controller: _controller,
                       itemCount: 1,
                       itemBuilder: (context, index) {
-                        var len = areadata["rows"].length;
+                        var len = list.length;
                         return Container(
                           color: Colors.white,
                           padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -114,7 +128,7 @@ class AreaListState extends State<AreaList> {
                                       childAspectRatio:
                                           (normalVideoRatio) * 0.8,
                                       children: List.generate(len, (indey) {
-                                        var res = areadata["rows"][indey];
+                                        var res = list[indey];
                                         return res == null
                                             ? Container(
                                                 alignment: Alignment.centerLeft,

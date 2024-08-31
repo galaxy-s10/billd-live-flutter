@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-const localIp = '192.168.1.103';
+const localIp = '192.168.1.104';
 const appTitle = 'billd直播';
 const themeColor = Color.fromRGBO(255, 215, 0, 1);
 
