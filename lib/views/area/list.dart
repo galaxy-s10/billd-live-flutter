@@ -23,6 +23,7 @@ class AreaListState extends State<AreaList> {
 
   var id;
   var areaName;
+  var loading;
   var nowPage = 1;
   var pageSize = 50;
   ScrollController _controller = ScrollController(); //listview的控制器
@@ -47,6 +48,9 @@ class AreaListState extends State<AreaList> {
     var res;
     bool err = false;
     try {
+      setState(() {
+        loading = true;
+      });
       res = await AreaApi.getAreaLiveRoomList(id, nowPage, pageSize);
       if (res['code'] == 200) {
         setState(() {
@@ -59,6 +63,9 @@ class AreaListState extends State<AreaList> {
     } catch (e) {
       billdPrint(e);
     }
+    setState(() {
+      loading = false;
+    });
     if (err && context.mounted) {
       BrnToast.show(res['message'], context);
     }
@@ -69,7 +76,7 @@ class AreaListState extends State<AreaList> {
     final size = MediaQuery.of(context).size;
     var titleHeight = 40.0;
     var h = size.height - store.safeHeight.value - titleHeight;
-    if (list.length == 0) {
+    if (list.isEmpty) {
       return fullLoading();
     }
     return Scaffold(
@@ -86,7 +93,7 @@ class AreaListState extends State<AreaList> {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ),
-          list.length == 0
+          list.isEmpty
               ? SizedBox(
                   height: h,
                   child: ListView(
@@ -141,14 +148,18 @@ class AreaListState extends State<AreaList> {
                                                 item: res,
                                               );
                                       })),
+                              loading == true
+                                  ? const Text('加载中...')
+                                  : const Text('')
                             ],
                           ),
                         );
                       }),
-                )
+                ),
         ],
       ),
       onRefresh: () async {
+        nowPage = 1;
         await getData();
         if (context.mounted) {
           BrnToast.show('刷新成功', context);
