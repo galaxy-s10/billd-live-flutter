@@ -1,9 +1,16 @@
 import 'package:billd_live_flutter/api/request.dart';
 
 class UserApi {
-  static login({required int id, required String password}) async {
+  static idLogin({required int id, required String password}) async {
     var res = await HttpRequest.post('/user/login',
         data: {'id': id, 'password': password});
+    return res;
+  }
+
+  static usernameLogin(
+      {required String username, required String password}) async {
+    var res = await HttpRequest.post('/user/username_login',
+        data: {'username': username, 'password': password});
     return res;
   }
 

@@ -2,9 +2,45 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:billd_live_flutter/const.dart';
+import 'package:billd_live_flutter/enum.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+handlePlayUrl(item, type) {
+  var url = '';
+  if (type == 'flv') {
+    if (item['cdn'] == liveRoomUseCDNEnum['yes']) {
+      if (item['type'] == liveRoomTypeEnum['tencent_css'] ||
+          item['type'] == liveRoomTypeEnum['tencent_css_pk']) {
+        url = item['cdn_flv_url'];
+      } else {
+        url = item['flv_url'];
+      }
+    } else {
+      url = item['flv_url'];
+    }
+  } else if (type == 'hls') {
+    if (item['cdn'] == liveRoomUseCDNEnum['yes']) {
+      if (item['type'] == liveRoomTypeEnum['tencent_css'] ||
+          item['type'] == liveRoomTypeEnum['tencent_css_pk']) {
+        url = item['cdn_hls_url'];
+      } else {
+        url = item['hls_url'];
+      }
+    } else {
+      url = item['hls_url'];
+    }
+  }
+  return url;
+}
+
+handleZero(int num) {
+  if (num < 10) {
+    return '0$num';
+  }
+  return num;
+}
 
 billdGetRangeRandom(int min, int max) {
   return (Random().nextDouble() * (max - min + 1)).floor() + min;
@@ -20,9 +56,9 @@ billdGetRandomString(int length) {
   return res;
 }
 
-billdPrint(data) {
+billdPrint(data, [args]) {
   // ignore: avoid_print
-  print(data);
+  print('$data---$args');
 }
 
 billdNetworkImage(String url) {

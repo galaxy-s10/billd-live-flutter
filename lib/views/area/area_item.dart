@@ -21,7 +21,6 @@ class AreaItemWidget extends StatelessWidget {
     if (imgurl == null || imgurl == '') {
       imgurl = item['users']?[0]?['avatar'];
     }
-    print(item['name']);
     return Column(
       children: [
         SizedBox(

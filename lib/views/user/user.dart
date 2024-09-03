@@ -19,7 +19,7 @@ class UserState extends State<User> {
   // int? id;
   // String? password;
   int? id = 101;
-  String? password = '123456n';
+  String? password = '123456a';
   bool isLogin = false;
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -49,7 +49,13 @@ class UserState extends State<User> {
                       ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),
-                  child: Obx(() => Text('${store.userInfo['username']}')),
+                  child: Column(
+                    children: [
+                      Obx(() => Text('${store.userInfo['username']}')),
+                      Obx(() => Text(
+                          '${store.userInfo['roles'].map((v) => v['role_name'])}'))
+                    ],
+                  ),
                 ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),
@@ -137,7 +143,6 @@ class UserState extends State<User> {
                     child: BrnBigGhostButton(
                       title: '登录',
                       onTap: () async {
-                        // BrnToast.show("开始登录", context);
                         if (id == null || password == null) {
                           BrnToast.show('请输入完整', context);
                           return;
@@ -148,8 +153,8 @@ class UserState extends State<User> {
                         }
                         try {
                           BilldLoading.showLoading(context);
-                          var res =
-                              await UserApi.login(id: id!, password: password!);
+                          var res = await UserApi.idLogin(
+                              id: id!, password: password!);
                           if (res['code'] != 200) {
                             if (context.mounted) {
                               BrnToast.show(res['message'], context);

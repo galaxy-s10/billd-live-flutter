@@ -15,25 +15,25 @@ class RankList extends StatefulWidget {
 }
 
 class RankListState extends State<RankList> {
-  ScrollController _controller = ScrollController(); //listview的控制器
+  final ScrollController _controller = ScrollController();
 
   List<dynamic> list = [];
 
-  var loading;
-  var nowPage = 1;
+  var loading = false;
+  var nowPage = 2;
   var pageSize = 50;
   @override
   void initState() {
+    list.addAll(widget.list);
     _controller.addListener(() {
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
-        print('滑动到了最底部');
+        billdPrint('daodile', nowPage);
         nowPage += 1;
         getData();
       }
     });
 
     super.initState();
-    getData();
   }
 
   getData() async {
@@ -69,15 +69,6 @@ class RankListState extends State<RankList> {
 
   @override
   Widget build(BuildContext context) {
-    // List<dynamic> list = widget.list;
-
-    handleZero(int num) {
-      if (num < 10) {
-        return '0$num';
-      }
-      return num;
-    }
-
     return ListView.builder(
         controller: _controller,
         shrinkWrap: true,
@@ -204,8 +195,10 @@ class RankListState extends State<RankList> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => Room(
-                                        flvurl: list[index]['flv_url'],
-                                        hlsurl: list[index]['hls_url'],
+                                        flvurl:
+                                            handlePlayUrl(list[index], 'flv'),
+                                        hlsurl:
+                                            handlePlayUrl(list[index], 'hls'),
                                         avatar: list[index]['users'][0]
                                             ['avatar'],
                                         username: list[index]['users'][0]

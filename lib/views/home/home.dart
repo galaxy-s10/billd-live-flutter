@@ -74,34 +74,6 @@ class HomeState extends State<Home> {
     return err;
   }
 
-  handlePlayUrl(item, type) {
-    var url = '';
-    if (type == 'flv') {
-      if (item['cdn'] == liveRoomUseCDNEnum['yes']) {
-        if (item['type'] == liveRoomTypeEnum['tencent_css'] ||
-            item['type'] == liveRoomTypeEnum['tencent_css_pk']) {
-          url = item['cdn_flv_url'];
-        } else {
-          url = item['flv_url'];
-        }
-      } else {
-        url = item['flv_url'];
-      }
-    } else if (type == 'hls') {
-      if (item['cdn'] == liveRoomUseCDNEnum['yes']) {
-        if (item['type'] == liveRoomTypeEnum['tencent_css'] ||
-            item['type'] == liveRoomTypeEnum['tencent_css_pk']) {
-          url = item['cdn_hls_url'];
-        } else {
-          url = item['hls_url'];
-        }
-      } else {
-        url = item['hls_url'];
-      }
-    }
-    return url;
-  }
-
   playVideo(String url) async {
     try {
       await stopVideo();

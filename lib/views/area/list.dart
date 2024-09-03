@@ -21,9 +21,9 @@ class AreaListState extends State<AreaList> {
   List<dynamic> list = [];
   final Controller store = Get.put(Controller());
 
-  var id;
-  var areaName;
-  var loading;
+  var id = -1;
+  var areaName = '';
+  var loading = false;
   var nowPage = 1;
   var pageSize = 50;
   ScrollController _controller = ScrollController(); //listview的控制器
@@ -34,7 +34,6 @@ class AreaListState extends State<AreaList> {
     areaName = widget.areaName;
     _controller.addListener(() {
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
-        print('滑动到了最底部');
         nowPage += 1;
         getData();
       }

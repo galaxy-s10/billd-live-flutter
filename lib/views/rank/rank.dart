@@ -28,6 +28,9 @@ class RankState extends State<Rank> {
   var topdata = [];
   var otherdata = [];
 
+  var nowPage = 1;
+  var pageSize = 50;
+
   @override
   void initState() {
     super.initState();
@@ -54,13 +57,20 @@ class RankState extends State<Rank> {
     var res;
     bool err = false;
     try {
-      res = await LiveRoomApi.getLiveRoomList(
-          {'orderName': 'updated_at', 'orderBy': 'desc'});
+      // res = await LiveRoomApi.getLiveRoomList(
+      //     {'orderName': 'updated_at', 'orderBy': 'desc'});
+      res = await LiveRoomApi.getLiveRoomList({
+        'orderName': 'updated_at',
+        'orderBy': 'desc',
+        'nowPage': nowPage,
+        'pageSize': pageSize
+      });
       if (res['code'] == 200) {
         setState(() {
           liveroomdata = res['data'];
           topdata = res['data']['rows'].sublist(0, 3);
           otherdata = res['data']['rows'].sublist(3);
+          billdPrint('otherdata', otherdata);
         });
       } else {
         err = true;

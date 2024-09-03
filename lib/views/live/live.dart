@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:billd_live_flutter/enum.dart';
 import 'package:billd_live_flutter/utils/index.dart';
 
 import 'package:billd_live_flutter/api/live_api.dart';
@@ -74,22 +75,21 @@ class RTCState extends State<WebRTCWidget> {
       var liveRoomInfo = store.userInfo['live_rooms'][0];
       billdPrint('offer成功');
       String streamurl =
-          '${liveRoomInfo['rtmp_url']}?pushkey=${liveRoomInfo['key']}&pushtype=2';
+          '${liveRoomInfo['rtmp_url']}?pushkey=${liveRoomInfo['key']}&pushtype=${liveRoomTypeEnum['srs']}';
       var srsres = await SRSApi.getRtcV1Publish(
           api: '/rtc/v1/publish/',
           sdp: offer.sdp,
           streamurl: streamurl,
           tid: Random().nextDouble().toString().substring(2));
       if (srsres['data']['code'] == 400) {
-        billdPrint('获取sdp错误');
+        billdPrint('获取sdp错误', srsres['data']);
         if (context.mounted) {
           BrnToast.show('推流错误', context);
         }
         return;
-      } else {
-        billdPrint('获取sdp成功');
-        billdPrint(srsres['data']['sdp']);
       }
+      billdPrint('获取sdp成功');
+      billdPrint(srsres['data']['sdp']);
       return srsres['data']['sdp'];
     } catch (e) {
       billdPrint(e);
@@ -118,23 +118,22 @@ class RTCState extends State<WebRTCWidget> {
               // 'maxHeight': '360', // 设置最大高度
               // 'minWidth': '360',
               // 'minHeight': '360',
-              // 'contentHint': 'detail'
+              // 'contentHint': 'detail',
               'facingMode': 'user', // 指定前置摄像头
             },
           },
           'audio': true,
           // 'facingMode': 'user', // 指定前置摄像头
         });
-        // stream.getVideoTracks().forEach((element) {
-        //   print(element.kind);
-        //   if (element.kind == 'video') {
-        //     element.applyConstraints({
-        //       'height': '720',
-        //       // 'height': {'ideal': 720},
-        //       // 'frameRate': {'ideal': 20},
-        //     });
-        //   }
-        // });
+        stream.getVideoTracks().forEach((element) {
+          if (element.kind == 'video') {
+            element.applyConstraints({
+              'height': '720',
+              // 'height': {'ideal': 720},
+              // 'frameRate': {'ideal': 20},
+            });
+          }
+        });
       } else if (mode[modeIndex]['value'] == 'back') {
         stream = await navigator.mediaDevices.getUserMedia({
           'video': {
