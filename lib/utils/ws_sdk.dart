@@ -9,7 +9,6 @@ class WsClass {
   WsClass() {
     socket = ws.io(
         websocketUrl, ws.OptionBuilder().setTransports(['websocket']).build());
-    init();
   }
   init() {
     billdPrint('===init===$websocketUrl');
@@ -20,13 +19,12 @@ class WsClass {
       billdPrint('===message===,$data');
       billdPrint(data);
     });
-    socket.onDisconnect((_) {
+    socket.onDisconnect((data) {
       billdPrint('===onDisconnect===');
-      billdPrint(_);
+      billdPrint(data);
     });
-    socket.on('fromServer', (_) {
-      billdPrint('===fromServer===');
-      billdPrint(_);
+    socket.on('fromServer', (data) {
+      billdPrint('===fromServer===', data);
     });
   }
 

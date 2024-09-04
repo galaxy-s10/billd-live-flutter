@@ -28,6 +28,7 @@ class RankState extends State<Rank> {
   var topdata = [];
   var otherdata = [];
 
+  var loading = false;
   var nowPage = 1;
   var pageSize = 50;
 
@@ -57,8 +58,9 @@ class RankState extends State<Rank> {
     var res;
     bool err = false;
     try {
-      // res = await LiveRoomApi.getLiveRoomList(
-      //     {'orderName': 'updated_at', 'orderBy': 'desc'});
+      setState(() {
+        loading = true;
+      });
       res = await LiveRoomApi.getLiveRoomList({
         'orderName': 'updated_at',
         'orderBy': 'desc',
@@ -70,7 +72,6 @@ class RankState extends State<Rank> {
           liveroomdata = res['data'];
           topdata = res['data']['rows'].sublist(0, 3);
           otherdata = res['data']['rows'].sublist(3);
-          billdPrint('otherdata', otherdata);
         });
       } else {
         err = true;
@@ -78,6 +79,9 @@ class RankState extends State<Rank> {
     } catch (e) {
       billdPrint(e);
     }
+    setState(() {
+      loading = false;
+    });
     if (err && context.mounted) {
       BrnToast.show(res['message'], context);
     }
@@ -111,11 +115,9 @@ class RankState extends State<Rank> {
         kBottomNavigationBarHeight -
         store.safeHeight.value -
         topHeight;
-
-    if (liveroomdata.isEmpty) {
+    if (loading) {
       return fullLoading();
     }
-
     return RefreshIndicator(
       child: Column(children: [
         Container(

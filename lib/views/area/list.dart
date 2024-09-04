@@ -17,16 +17,16 @@ class AreaList extends StatefulWidget {
 }
 
 class AreaListState extends State<AreaList> {
-  Map<String, dynamic> areadata = {};
   List<dynamic> list = [];
   final Controller store = Get.put(Controller());
 
   var id = -1;
   var areaName = '';
+  var hasMore = true;
   var loading = false;
   var nowPage = 1;
   var pageSize = 50;
-  ScrollController _controller = ScrollController(); //listview的控制器
+  final ScrollController _controller = ScrollController();
 
   @override
   void initState() {
@@ -34,6 +34,7 @@ class AreaListState extends State<AreaList> {
     areaName = widget.areaName;
     _controller.addListener(() {
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+        if (!hasMore) return;
         nowPage += 1;
         getData();
       }
@@ -53,7 +54,7 @@ class AreaListState extends State<AreaList> {
       res = await AreaApi.getAreaLiveRoomList(id, nowPage, pageSize);
       if (res['code'] == 200) {
         setState(() {
-          areadata = res['data'];
+          hasMore = res['data']['hasMore'];
           list.addAll(res['data']['rows']);
         });
       } else {
@@ -75,7 +76,7 @@ class AreaListState extends State<AreaList> {
     final size = MediaQuery.of(context).size;
     var titleHeight = 40.0;
     var h = size.height - store.safeHeight.value - titleHeight;
-    if (list.isEmpty) {
+    if (loading) {
       return fullLoading();
     }
     return Scaffold(
@@ -149,7 +150,12 @@ class AreaListState extends State<AreaList> {
                                       })),
                               loading == true
                                   ? const Text('加载中...')
-                                  : const Text('')
+                                  : Container(),
+                              hasMore == false
+                                  ? const Text(
+                                      '已加载所有',
+                                    )
+                                  : Container(),
                             ],
                           ),
                         );

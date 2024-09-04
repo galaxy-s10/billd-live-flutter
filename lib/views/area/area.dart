@@ -15,7 +15,9 @@ class Area extends StatefulWidget {
 }
 
 class AreaState extends State<Area> {
-  Map<String, dynamic> areadata = {};
+  List<dynamic> list = [];
+
+  var loading = false;
 
   @override
   initState() {
@@ -28,10 +30,13 @@ class AreaState extends State<Area> {
     var res;
     bool err = false;
     try {
+      setState(() {
+        loading = true;
+      });
       res = await AreaApi.getAreaAreaLiveRoomList();
       if (res['code'] == 200) {
         setState(() {
-          areadata = res['data'];
+          list = res['data']['rows'];
         });
       } else {
         err = true;
@@ -39,6 +44,9 @@ class AreaState extends State<Area> {
     } catch (e) {
       billdPrint(e);
     }
+    setState(() {
+      loading = false;
+    });
     if (err && context.mounted) {
       BrnToast.show(res['message'], context);
     }
@@ -46,15 +54,15 @@ class AreaState extends State<Area> {
 
   @override
   Widget build(BuildContext context) {
-    if (areadata.isEmpty) {
+    if (loading) {
       return fullLoading();
     }
     return RefreshIndicator(
       child: ListView.builder(
-          itemCount: areadata['total'],
+          itemCount: list.length,
           itemBuilder: (context, index) {
-            if (areadata['rows'] != null) {
-              var len = areadata["rows"][index]['area_live_rooms'].length;
+            if (list.isNotEmpty) {
+              var len = list[index]['area_live_rooms'].length;
               return Container(
                 color: Colors.white,
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -66,8 +74,7 @@ class AreaState extends State<Area> {
                       child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                                child: Text(areadata["rows"][index]['name'])),
+                            Expanded(child: Text(list[index]['name'])),
                             GestureDetector(
                               child: const Text(
                                 '查看全部',
@@ -81,8 +88,8 @@ class AreaState extends State<Area> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => AreaList(
-                                      id: areadata["rows"][index]['id'],
-                                      areaName: areadata["rows"][index]['name'],
+                                      id: list[index]['id'],
+                                      areaName: list[index]['name'],
                                     ),
                                   ),
                                 );
@@ -105,8 +112,8 @@ class AreaState extends State<Area> {
                             // Item的宽高比，由于GridView的Item宽高并不由Item自身控制，默认情况下，交叉轴是横轴，因此Item的宽度均分屏幕宽度，这个时候设置childAspectRatio可以改变Item的高度，反之亦然；
                             childAspectRatio: (normalVideoRatio) * 0.8,
                             children: List.generate(len, (indey) {
-                              var res = areadata["rows"][index]
-                                  ['area_live_rooms'][indey]['live_room'];
+                              var res = list[index]['area_live_rooms'][indey]
+                                  ['live_room'];
 
                               return res == null
                                   ? Container(

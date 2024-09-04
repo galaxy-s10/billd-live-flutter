@@ -20,6 +20,7 @@ class RankListState extends State<RankList> {
   List<dynamic> list = [];
 
   var loading = false;
+  var hasMore = true;
   var nowPage = 2;
   var pageSize = 50;
   @override
@@ -27,7 +28,7 @@ class RankListState extends State<RankList> {
     list.addAll(widget.list);
     _controller.addListener(() {
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
-        billdPrint('daodile', nowPage);
+        if (!hasMore) return;
         nowPage += 1;
         getData();
       }
@@ -51,6 +52,7 @@ class RankListState extends State<RankList> {
       });
       if (res['code'] == 200) {
         setState(() {
+          hasMore = res['data']['hasMore'];
           list.addAll(res['data']['rows']);
         });
       } else {
@@ -190,18 +192,18 @@ class RankListState extends State<RankList> {
                                   ],
                                 )),
                             onTap: () {
-                              if (list[index]['live'] != null) {
+                              if (list[indey]['live'] != null) {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => Room(
                                         flvurl:
-                                            handlePlayUrl(list[index], 'flv'),
+                                            handlePlayUrl(list[indey], 'flv'),
                                         hlsurl:
-                                            handlePlayUrl(list[index], 'hls'),
-                                        avatar: list[index]['users'][0]
+                                            handlePlayUrl(list[indey], 'hls'),
+                                        avatar: list[indey]['users'][0]
                                             ['avatar'],
-                                        username: list[index]['users'][0]
+                                        username: list[indey]['users'][0]
                                             ['username']),
                                   ),
                                 );
@@ -216,7 +218,12 @@ class RankListState extends State<RankList> {
                     ? const Text(
                         '加载中...',
                       )
-                    : const Text(''),
+                    : Container(),
+                hasMore == false
+                    ? const Text(
+                        '已加载所有',
+                      )
+                    : Container(),
               ],
             ),
           );
