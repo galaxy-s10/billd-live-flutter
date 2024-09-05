@@ -26,6 +26,7 @@ class HomeState extends State<Home> {
   Map<String, dynamic> livedata = {};
   ValueNotifier<int> currentItemIndex = ValueNotifier(0);
   bool loading = false;
+  var err = false;
   double videoRatio = normalVideoRatio;
 
   String line = 'hls';
@@ -33,12 +34,7 @@ class HomeState extends State<Home> {
   @override
   initState() {
     super.initState();
-    getData().then((_) {
-      if (store.tabIndex.value == 0) {
-        playVideo(handlePlayUrl(
-            livedata['rows']?[currentItemIndex.value]?['live_room'], 'hls'));
-      }
-    });
+    initFirstVideo();
     store.tabIndex.listen((value) async {
       if (value != 0) {
         await stopVideo();
@@ -53,9 +49,16 @@ class HomeState extends State<Home> {
     });
   }
 
+  initFirstVideo() async {
+    await getData();
+    if (store.tabIndex.value == 0) {
+      playVideo(handlePlayUrl(
+          livedata['rows']?[currentItemIndex.value]?['live_room'], 'hls'));
+    }
+  }
+
   Future getData() async {
     var res;
-    bool err = false;
     try {
       res = await LiveApi.getLiveList();
       if (res['code'] == 200) {
@@ -63,19 +66,27 @@ class HomeState extends State<Home> {
           livedata = res['data'];
         });
       } else {
-        err = true;
+        setState(() {
+          err = true;
+        });
       }
     } catch (e) {
       billdPrint(e);
+      setState(() {
+        err = true;
+      });
     }
-    if (err && context.mounted) {
-      BrnToast.show(res['message'], context);
+    var msg = res?['message'];
+    if (msg is String) {
+      BrnToast.show(msg, context);
+    } else {
+      BrnToast.show(networkErrorMsg, context);
     }
-    return err;
   }
 
   playVideo(String url) async {
     try {
+      if (url.isEmpty) return;
       await stopVideo();
       String newurl = url.replaceAll('localhost', localIp);
       billdPrint('newurl:$newurl');
@@ -110,6 +121,14 @@ class HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    if (err) {
+      return const Text(
+        '首页数据加载失败',
+        style: TextStyle(
+          fontSize: 20,
+        ),
+      );
+    }
     if (livedata['rows'] != null && store.tabIndex.value == 0) {
       final size = MediaQuery.of(context).size;
       double height =
@@ -226,7 +245,6 @@ class HomeState extends State<Home> {
                                 ]),
                               ),
                               onTap: () async {
-                                var err = await getData();
                                 if (!err) {
                                   if (context.mounted) {
                                     BrnToast.show('更新直播列表成功', context);

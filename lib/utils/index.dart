@@ -5,10 +5,17 @@ import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/enum.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 handlePlayUrl(item, type) {
   var url = '';
+  if (item == null) {
+    return url;
+  }
+  if (type == null) {
+    return url;
+  }
   if (type == 'flv') {
     if (item['cdn'] == liveRoomUseCDNEnum['yes']) {
       if (item['type'] == liveRoomTypeEnum['tencent_css'] ||

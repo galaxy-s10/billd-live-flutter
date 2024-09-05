@@ -165,9 +165,10 @@ class UserState extends State<User> {
                           BrnToast.show('密码长度要求6-10位', context);
                           return;
                         }
+                        var res;
                         try {
                           BilldLoading.showLoading(context);
-                          var res = await UserApi.idLogin(
+                          res = await UserApi.idLogin(
                               id: id!, password: password!);
                           if (res['code'] != 200) {
                             if (context.mounted) {
@@ -192,6 +193,12 @@ class UserState extends State<User> {
                           }
                         } catch (e) {
                           billdPrint(e);
+                          var msg = res?['message'];
+                          if (msg is String) {
+                            BrnToast.show(msg, context);
+                          } else {
+                            BrnToast.show(networkErrorMsg, context);
+                          }
                         } finally {
                           BilldLoading.stop();
                         }

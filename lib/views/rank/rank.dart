@@ -1,4 +1,5 @@
 import 'package:billd_live_flutter/api/live_room_api.dart';
+import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/utils/index.dart';
 import 'package:billd_live_flutter/views/rank/list.dart';
@@ -28,6 +29,7 @@ class RankState extends State<Rank> {
   var topdata = [];
   var otherdata = [];
 
+  var err = false;
   var loading = false;
   var nowPage = 1;
   var pageSize = 50;
@@ -36,7 +38,6 @@ class RankState extends State<Rank> {
   void initState() {
     super.initState();
     getData();
-    WsClass().init();
     handleAudio();
   }
 
@@ -56,7 +57,6 @@ class RankState extends State<Rank> {
 
   getData() async {
     var res;
-    bool err = false;
     try {
       setState(() {
         loading = true;
@@ -78,12 +78,18 @@ class RankState extends State<Rank> {
       }
     } catch (e) {
       billdPrint(e);
+      setState(() {
+        err = true;
+      });
     }
     setState(() {
       loading = false;
     });
-    if (err && context.mounted) {
-      BrnToast.show(res['message'], context);
+    var msg = res?['message'];
+    if (msg is String) {
+      BrnToast.show(msg, context);
+    } else {
+      BrnToast.show(networkErrorMsg, context);
     }
   }
 
@@ -109,6 +115,14 @@ class RankState extends State<Rank> {
 
   @override
   Widget build(BuildContext context) {
+    if (err) {
+      return const Text(
+        '排行榜数据加载失败',
+        style: TextStyle(
+          fontSize: 20,
+        ),
+      );
+    }
     final size = MediaQuery.of(context).size;
     var topHeight = 290.0;
     var h = size.height -
@@ -127,38 +141,6 @@ class RankState extends State<Rank> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // const AndroidView(
-                //   viewType: 'package com.example.billd_live_flutter',
-                // ),
-                // GestureDetector(
-                //   child: Container(
-                //     child: Text('录2制'),
-                //   ),
-                //   onTap: () async {
-                //     // await startForegroundService();
-                //     billdPrint('录制录制');
-                //     // stream.listen((event) {
-                //     //   billdPrint(event);
-                //     //   billdPrint("ddd");
-                //     // });
-                //     // billdPrint('streamstream');
-                //     // billdPrint(stream);
-                //   },
-                // ),
-                // GestureDetector(
-                //   child: Container(
-                //     width: 20,
-                //     child: Text(''),
-                //   ),
-                // ),
-                // GestureDetector(
-                //   child: Container(
-                //     child: Text('停止'),
-                //   ),
-                //   onTap: () {
-                //     billdPrint('停止');
-                //   },
-                // ),
                 Container(
                     margin: const EdgeInsets.fromLTRB(0, 120, 0, 0),
                     child: TopItem(

@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter/services.dart';
+
 const localIp = '192.168.12.83';
 const appTitle = 'billd直播';
 const themeColor = Color.fromRGBO(255, 215, 0, 1);
@@ -13,3 +15,5 @@ const axiosTimeoutSeconds = 5;
 const normalVideoRatio = 16 / 9;
 // 纵横比
 const normalAspectRatio = 9 / 16; // 0.5625
+
+const networkErrorMsg = '网络错误';

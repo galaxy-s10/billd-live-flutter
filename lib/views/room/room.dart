@@ -32,14 +32,14 @@ class RankState extends State<Room> {
   String hlsurl = '';
   String avatar = '';
   String username = '';
-  WsClass ws = WsClass();
+  // WsClass ws = WsClass();
   var videoRatio = normalVideoRatio;
   VideoPlayerController? _controller;
 
   @override
   void initState() {
     super.initState();
-    ws.init();
+    // ws.init();
     hlsurl = widget.hlsurl;
     avatar = widget.avatar;
     username = widget.username;
@@ -50,7 +50,7 @@ class RankState extends State<Room> {
   void dispose() {
     super.dispose();
     stopVideo();
-    ws.close();
+    // ws.close();
   }
 
   playVideo(String url) async {
@@ -147,11 +147,11 @@ class RankState extends State<Room> {
               style: TextStyle(color: themeColor, fontWeight: FontWeight.bold),
             ),
             onTap: () {
-              ws.send('join', billdGetRandomString(8), {
-                'live_room_id': 123456,
-                'socket_id': ws.socket.id,
-                'isRemoteDesk': true,
-              });
+              // ws.send('join', billdGetRandomString(8), {
+              //   'live_room_id': 123456,
+              //   'socket_id': ws.socket.id,
+              //   'isRemoteDesk': true,
+              // });
             },
           )
         ],

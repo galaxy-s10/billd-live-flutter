@@ -17,6 +17,7 @@ class Area extends StatefulWidget {
 class AreaState extends State<Area> {
   List<dynamic> list = [];
 
+  var err = false;
   var loading = false;
 
   @override
@@ -28,7 +29,6 @@ class AreaState extends State<Area> {
 
   getData() async {
     var res;
-    bool err = false;
     try {
       setState(() {
         loading = true;
@@ -43,17 +43,31 @@ class AreaState extends State<Area> {
       }
     } catch (e) {
       billdPrint(e);
+      setState(() {
+        err = true;
+      });
     }
     setState(() {
       loading = false;
     });
-    if (err && context.mounted) {
-      BrnToast.show(res['message'], context);
+    var msg = res?['message'];
+    if (msg is String) {
+      BrnToast.show(msg, context);
+    } else {
+      BrnToast.show(networkErrorMsg, context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (err) {
+      return const Text(
+        '分区数据加载失败',
+        style: TextStyle(
+          fontSize: 20,
+        ),
+      );
+    }
     if (loading) {
       return fullLoading();
     }
