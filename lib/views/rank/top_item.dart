@@ -144,11 +144,12 @@ class TopItem extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => Room(
-                flvurl: handlePlayUrl(item, 'flv'),
-                hlsurl: handlePlayUrl(item, 'hls'),
-                avatar: imgurl,
-                username: item['users'][0]['username'],
-              ),
+                  flvurl: handlePlayUrl(item, 'flv'),
+                  hlsurl: handlePlayUrl(item, 'hls'),
+                  avatar: imgurl,
+                  username: item['users'][0]['username'],
+                  liveRoomId: item['id'],
+                  liveRoomInfo: item),
             ),
           );
         } else {

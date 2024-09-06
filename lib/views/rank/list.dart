@@ -197,14 +197,14 @@ class RankListState extends State<RankList> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => Room(
-                                        flvurl:
-                                            handlePlayUrl(list[indey], 'flv'),
-                                        hlsurl:
-                                            handlePlayUrl(list[indey], 'hls'),
-                                        avatar: list[indey]['users'][0]
-                                            ['avatar'],
-                                        username: list[indey]['users'][0]
-                                            ['username']),
+                                      flvurl: handlePlayUrl(list[indey], 'flv'),
+                                      hlsurl: handlePlayUrl(list[indey], 'hls'),
+                                      avatar: list[indey]['users'][0]['avatar'],
+                                      username: list[indey]['users'][0]
+                                          ['username'],
+                                      liveRoomId: list[indey]['id'],
+                                      liveRoomInfo: list[indey],
+                                    ),
                                   ),
                                 );
                               } else {

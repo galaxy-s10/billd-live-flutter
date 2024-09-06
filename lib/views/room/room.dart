@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:billd_live_flutter/const.dart';
+import 'package:billd_live_flutter/enum.dart';
 import 'package:billd_live_flutter/stores/app.dart';
-import 'package:billd_live_flutter/views/room/websocket.dart';
+import 'package:billd_live_flutter/utils/ws_sdk.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,12 +15,16 @@ class Room extends StatefulWidget {
   final String flvurl;
   final String avatar;
   final String username;
+  final int liveRoomId;
+  final dynamic liveRoomInfo;
 
   const Room({
     required this.flvurl,
     required this.hlsurl,
     required this.avatar,
     required this.username,
+    required this.liveRoomId,
+    required this.liveRoomInfo,
     super.key,
   });
 
@@ -32,14 +39,24 @@ class RankState extends State<Room> {
   String hlsurl = '';
   String avatar = '';
   String username = '';
-  // WsClass ws = WsClass();
+  int liveRoomId = -1;
+  var liveRoomInfo;
+  var timer;
   var videoRatio = normalVideoRatio;
+
+  WsClass ws = WsClass();
   VideoPlayerController? _controller;
 
   @override
   void initState() {
     super.initState();
-    // ws.init();
+    ws.init();
+    timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      // ws.send(wsMsgTypeEnum['message']!, billdGetRandomString(8), {});
+      sendJoin();
+    });
+    liveRoomId = widget.liveRoomId;
+    liveRoomInfo = widget.liveRoomInfo;
     hlsurl = widget.hlsurl;
     avatar = widget.avatar;
     username = widget.username;
@@ -49,8 +66,19 @@ class RankState extends State<Room> {
   @override
   void dispose() {
     super.dispose();
+    timer.cancel();
     stopVideo();
-    // ws.close();
+    ws.close();
+  }
+
+  sendJoin() {
+    billdPrint('sendJoinsendJoin', liveRoomId);
+    ws.send(wsMsgTypeEnum['join']!, billdGetRandomString(8), {
+      'isBilibili': false,
+      'isRemoteDesk': false,
+      'live_room_id': liveRoomId,
+      'user_info': null,
+    });
   }
 
   playVideo(String url) async {
@@ -142,13 +170,13 @@ class RankState extends State<Room> {
                       color: Colors.white,
                     ),
           GestureDetector(
-            child: const Text(
-              'send',
+            child: Text(
+              liveRoomTypeEnumMap[liveRoomInfo['type']]!,
               style: TextStyle(color: themeColor, fontWeight: FontWeight.bold),
             ),
             onTap: () {
               // ws.send('join', billdGetRandomString(8), {
-              //   'live_room_id': 123456,
+              //   'liveRoomId': 123456,
               //   'socket_id': ws.socket.id,
               //   'isRemoteDesk': true,
               // });

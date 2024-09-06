@@ -45,6 +45,8 @@ class WsClass {
       'request_id': requestId,
       'socket_id': socket.id,
       'is_anchor': false,
+      'user_info': null,
+      'user_token': null,
       'data': data
     };
     socket.emit(msgType, sendData);

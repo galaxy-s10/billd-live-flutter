@@ -4,7 +4,6 @@ import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/utils/index.dart';
 import 'package:billd_live_flutter/views/rank/list.dart';
 import 'package:billd_live_flutter/views/rank/top_item.dart';
-import 'package:billd_live_flutter/views/room/websocket.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background/flutter_background.dart';
@@ -86,10 +85,12 @@ class RankState extends State<Rank> {
       loading = false;
     });
     var msg = res?['message'];
-    if (msg is String) {
-      BrnToast.show(msg, context);
-    } else {
-      BrnToast.show(networkErrorMsg, context);
+    if (err) {
+      if (msg is String) {
+        BrnToast.show(msg, context);
+      } else {
+        BrnToast.show(networkErrorMsg, context);
+      }
     }
   }
 

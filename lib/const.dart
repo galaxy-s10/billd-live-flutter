@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:billd_live_flutter/enum.dart';
 import 'package:flutter/services.dart';
 
 const localIp = '192.168.12.83';
@@ -17,3 +18,19 @@ const normalVideoRatio = 16 / 9;
 const normalAspectRatio = 9 / 16; // 0.5625
 
 const networkErrorMsg = '网络错误';
+
+var liveRoomTypeEnumMap = {
+  liveRoomTypeEnum["system"]: 'msr推流',
+  liveRoomTypeEnum['obs']: 'obs推流',
+  liveRoomTypeEnum['pk']: '打pk',
+  liveRoomTypeEnum['srs']: 'srs推流',
+  liveRoomTypeEnum['system']: '系统推流',
+  liveRoomTypeEnum['tencent_css']: '腾讯云css推流',
+  liveRoomTypeEnum['tencent_css_pk']: '腾讯云css打pk',
+  liveRoomTypeEnum['wertc_live']: 'webrtc直播',
+  liveRoomTypeEnum['wertc_meeting_one']: 'webrtc会议一',
+  liveRoomTypeEnum['wertc_meeting_two']: 'webrtc会议二',
+  liveRoomTypeEnum['forward_bilibili']: '转推b站',
+  liveRoomTypeEnum['forward_huya']: '转推虎牙',
+  liveRoomTypeEnum['sforward_all']: '转推所有',
+};

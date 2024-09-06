@@ -77,10 +77,12 @@ class HomeState extends State<Home> {
       });
     }
     var msg = res?['message'];
-    if (msg is String) {
-      BrnToast.show(msg, context);
-    } else {
-      BrnToast.show(networkErrorMsg, context);
+    if (err) {
+      if (msg is String) {
+        BrnToast.show(msg, context);
+      } else {
+        BrnToast.show(networkErrorMsg, context);
+      }
     }
   }
 
