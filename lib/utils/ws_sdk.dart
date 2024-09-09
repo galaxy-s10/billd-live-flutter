@@ -19,12 +19,17 @@ class WsClass {
       billdPrint('===message===,$data');
       billdPrint(data);
     });
+    socket.on(wsMsgTypeEnum['joined']!, (data) {
+      billdPrint('===joined===,$data');
+      billdPrint(data);
+    });
+    socket.on(wsMsgTypeEnum['batchSendOffer']!, (data) {
+      billdPrint('===batchSendOffer===,$data');
+      billdPrint(data);
+    });
     socket.onDisconnect((data) {
       billdPrint('===onDisconnect===');
       billdPrint(data);
-    });
-    socket.on('fromServer', (data) {
-      billdPrint('===fromServer===', data);
     });
   }
 

@@ -26,7 +26,9 @@ class TopItem extends StatelessWidget {
   Widget build(BuildContext context) {
     const width = 126.0;
     var imgurl = item?['users']?[0]?['avatar'];
-
+    if (imgurl == null) {
+      imgurl = '';
+    }
     return GestureDetector(
       child: Stack(
         children: [

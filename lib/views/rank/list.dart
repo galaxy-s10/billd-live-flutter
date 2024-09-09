@@ -88,7 +88,8 @@ class RankListState extends State<RankList> {
                   list.length,
                   (indey) {
                     var res = list[indey];
-                    var imgurl = list[indey]['users'][0]['avatar'];
+                    var imgurl = res?['users']?[0]?['avatar'];
+
                     return res == null
                         ? Container(
                             alignment: Alignment.centerLeft,

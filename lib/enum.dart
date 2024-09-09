@@ -23,6 +23,8 @@ const wsMsgTypeEnum = {
 
   // 房间正在直播
   'roomLiving': 'roomLiving',
+
+  'batchSendOffer': 'batchSendOffer',
 };
 
 // 直播间类型

@@ -7,6 +7,7 @@ import 'package:billd_live_flutter/utils/ws_sdk.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 import 'package:video_player/video_player.dart';
 import 'package:billd_live_flutter/utils/index.dart';
 
@@ -60,6 +61,19 @@ class RankState extends State<Room> {
     hlsurl = widget.hlsurl;
     avatar = widget.avatar;
     username = widget.username;
+
+    ws.socket.on(wsMsgTypeEnum['joined']!, (data) {
+      if (liveRoomInfo['type'] == liveRoomTypeEnum['wertc_meeting_one'] ||
+          liveRoomInfo['type'] == liveRoomTypeEnum['wertc_meeting_two'] ||
+          liveRoomInfo['type'] == liveRoomTypeEnum['pk']) {
+        sendBatchSendOffer();
+      }
+    });
+    if (liveRoomInfo['type'] == liveRoomTypeEnum['wertc_meeting_one'] ||
+        liveRoomInfo['type'] == liveRoomTypeEnum['wertc_meeting_two'] ||
+        liveRoomInfo['type'] == liveRoomTypeEnum['pk']) {
+      return;
+    }
     playVideo(widget.hlsurl);
   }
 
@@ -78,6 +92,13 @@ class RankState extends State<Room> {
       'isRemoteDesk': false,
       'live_room_id': liveRoomId,
       'user_info': null,
+    });
+  }
+
+  sendBatchSendOffer() {
+    billdPrint('batchSendOffer', liveRoomId);
+    ws.send(wsMsgTypeEnum['batchSendOffer']!, billdGetRandomString(8), {
+      'roomId': liveRoomId,
     });
   }
 
