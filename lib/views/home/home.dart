@@ -36,6 +36,7 @@ class HomeState extends State<Home> {
     super.initState();
     initFirstVideo();
     store.tabIndex.listen((value) async {
+      billdPrint('tabIndex变了', value);
       if (value != 0) {
         await stopVideo();
       } else {
@@ -44,6 +45,9 @@ class HomeState extends State<Home> {
       }
     });
     currentItemIndex.addListener(() async {
+      billdPrint(
+        'currentItemIndex变了',
+      );
       await playVideo(handlePlayUrl(
           livedata['rows']?[currentItemIndex.value]?['live_room'], 'hls'));
     });

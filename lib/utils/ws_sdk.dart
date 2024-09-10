@@ -7,8 +7,14 @@ class WsClass {
   late ws.Socket socket;
 
   WsClass() {
+    billdPrint('newwwww');
     socket = ws.io(
-        websocketUrl, ws.OptionBuilder().setTransports(['websocket']).build());
+        websocketUrl,
+        ws.OptionBuilder()
+            .setTransports(['websocket'])
+            .disableAutoConnect()
+            .build());
+    socket.connect();
   }
   init() {
     billdPrint('===init===$websocketUrl');
@@ -35,7 +41,7 @@ class WsClass {
 
   close() {
     billdPrint('===close===');
-    socket.close();
+    socket.disconnect();
   }
 
   send(String msgType, String requestId, dynamic data) {

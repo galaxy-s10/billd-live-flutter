@@ -51,10 +51,9 @@ class RankState extends State<Room> {
   @override
   void initState() {
     super.initState();
-    ws.init();
+    // ws.init();
     timer = Timer.periodic(const Duration(seconds: 2), (timer) {
       // ws.send(wsMsgTypeEnum['message']!, billdGetRandomString(8), {});
-      sendJoin();
     });
     liveRoomId = widget.liveRoomId;
     liveRoomInfo = widget.liveRoomInfo;
@@ -62,6 +61,10 @@ class RankState extends State<Room> {
     avatar = widget.avatar;
     username = widget.username;
 
+    ws.socket.on('connect', (data) {
+      billdPrint('connectconnectconnect');
+      sendJoin();
+    });
     ws.socket.on(wsMsgTypeEnum['joined']!, (data) {
       if (liveRoomInfo['type'] == liveRoomTypeEnum['wertc_meeting_one'] ||
           liveRoomInfo['type'] == liveRoomTypeEnum['wertc_meeting_two'] ||
@@ -79,10 +82,12 @@ class RankState extends State<Room> {
 
   @override
   void dispose() {
-    super.dispose();
     timer.cancel();
     stopVideo();
+    ws.socket.off(wsMsgTypeEnum['connect']!);
+    ws.socket.off(wsMsgTypeEnum['joined']!);
     ws.close();
+    super.dispose();
   }
 
   sendJoin() {
