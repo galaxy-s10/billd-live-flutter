@@ -27,6 +27,9 @@ const wsMsgTypeEnum = {
   'roomLiving': 'roomLiving',
 
   'batchSendOffer': 'batchSendOffer',
+  'nativeWebRtcOffer': 'nativeWebRtcOffer',
+  'nativeWebRtcAnswer': 'nativeWebRtcAnswer',
+  'nativeWebRtcCandidate': 'nativeWebRtcCandidate',
 };
 
 // 直播间类型

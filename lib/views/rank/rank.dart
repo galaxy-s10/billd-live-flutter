@@ -101,20 +101,6 @@ class RankState extends State<Rank> {
     return mediaStream;
   }
 
-  Future<bool> startForegroundService() async {
-    const androidConfig = FlutterBackgroundAndroidConfig(
-      notificationTitle: 'Title of the notification',
-      notificationText: 'Text of the notification',
-      notificationImportance: AndroidNotificationImportance.Default,
-      notificationIcon: AndroidResource(
-          name: 'background_icon',
-          defType: 'drawable'), // Default is ic_launcher from folder mipmap
-    );
-    await FlutterBackground.initialize(androidConfig: androidConfig);
-    return FlutterBackground.enableBackgroundExecution();
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (err) {
       return const Text(

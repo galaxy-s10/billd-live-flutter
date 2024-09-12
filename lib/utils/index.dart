@@ -5,8 +5,21 @@ import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/enum.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_background/flutter_background.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+Future<bool> startForegroundService() async {
+  const androidConfig = FlutterBackgroundAndroidConfig(
+    notificationTitle: 'Title of the notification',
+    notificationText: 'Text of the notification',
+    notificationImportance: AndroidNotificationImportance.Default,
+    notificationIcon: AndroidResource(
+        name: 'background_icon',
+        defType: 'drawable'), // Default is ic_launcher from folder mipmap
+  );
+  await FlutterBackground.initialize(androidConfig: androidConfig);
+  return FlutterBackground.enableBackgroundExecution();
+}
 
 handlePlayUrl(item, type) {
   var url = '';

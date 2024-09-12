@@ -45,7 +45,8 @@ class WsClass {
   }
 
   send(String msgType, String requestId, dynamic data) {
-    billdPrint('===send===');
+    billdPrint('===send===', msgType);
+    billdPrint('===senddata ===', data);
     // request_id: requestId,
     // socket_id: this.socketIo.id,
     // is_anchor: this.isAnchor,

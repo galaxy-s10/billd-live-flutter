@@ -35,6 +35,7 @@ class RTCState extends State<WebRTCWidget> {
   ];
 
   var modeIndex = 0;
+  var typeIndex = 0;
   int countdown = 3;
   // var status = ValueNotifier(LiveStatus.nolive);
   var status = LiveStatus.nolive;
@@ -167,19 +168,6 @@ class RTCState extends State<WebRTCWidget> {
         BrnToast.show('拒绝授权', context);
       }
     }
-  }
-
-  Future<bool> startForegroundService() async {
-    const androidConfig = FlutterBackgroundAndroidConfig(
-      notificationTitle: 'Title of the notification',
-      notificationText: 'Text of the notification',
-      notificationImportance: AndroidNotificationImportance.Default,
-      notificationIcon: AndroidResource(
-          name: 'background_icon',
-          defType: 'drawable'), // Default is ic_launcher from folder mipmap
-    );
-    await FlutterBackground.initialize(androidConfig: androidConfig);
-    return FlutterBackground.enableBackgroundExecution();
   }
 
   handleCloseLive() async {
@@ -354,7 +342,7 @@ class RTCState extends State<WebRTCWidget> {
               const Text("类型："),
               BrnRadioButton(
                 radioIndex: 0,
-                isSelected: modeIndex == 0,
+                isSelected: typeIndex == 0,
                 child: const Padding(
                   padding: EdgeInsets.only(left: 5),
                   child: Text(
@@ -363,7 +351,7 @@ class RTCState extends State<WebRTCWidget> {
                 ),
                 onValueChangedAtIndex: (index, value) {
                   setState(() {
-                    modeIndex = index;
+                    typeIndex = index;
                   });
                 },
               ),
@@ -372,7 +360,7 @@ class RTCState extends State<WebRTCWidget> {
               ),
               BrnRadioButton(
                 radioIndex: 1,
-                isSelected: modeIndex == 1,
+                isSelected: typeIndex == 1,
                 child: const Padding(
                   padding: EdgeInsets.only(left: 5),
                   child: Text(
@@ -381,7 +369,7 @@ class RTCState extends State<WebRTCWidget> {
                 ),
                 onValueChangedAtIndex: (index, value) {
                   setState(() {
-                    modeIndex = index;
+                    typeIndex = index;
                   });
                 },
               ),
