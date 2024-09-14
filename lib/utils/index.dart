@@ -21,35 +21,35 @@ Future<bool> startForegroundService() async {
   return FlutterBackground.enableBackgroundExecution();
 }
 
-handlePlayUrl(item, type) {
+handlePlayUrl(liveRoomInfo, type) {
   var url = '';
-  if (item == null) {
+  if (liveRoomInfo == null) {
     return url;
   }
   if (type == null) {
     return url;
   }
   if (type == 'flv') {
-    if (item['cdn'] == liveRoomUseCDNEnum['yes']) {
-      if (item['type'] == liveRoomTypeEnum['tencent_css'] ||
-          item['type'] == liveRoomTypeEnum['tencent_css_pk']) {
-        url = item['cdn_flv_url'];
+    if (liveRoomInfo['cdn'] == liveRoomUseCDNEnum['yes']) {
+      if (liveRoomInfo['type'] == liveRoomTypeEnum['tencent_css'] ||
+          liveRoomInfo['type'] == liveRoomTypeEnum['tencent_css_pk']) {
+        url = liveRoomInfo['cdn_flv_url'];
       } else {
-        url = item['flv_url'];
+        url = liveRoomInfo['flv_url'];
       }
     } else {
-      url = item['flv_url'];
+      url = liveRoomInfo['flv_url'];
     }
   } else if (type == 'hls') {
-    if (item['cdn'] == liveRoomUseCDNEnum['yes']) {
-      if (item['type'] == liveRoomTypeEnum['tencent_css'] ||
-          item['type'] == liveRoomTypeEnum['tencent_css_pk']) {
-        url = item['cdn_hls_url'];
+    if (liveRoomInfo['cdn'] == liveRoomUseCDNEnum['yes']) {
+      if (liveRoomInfo['type'] == liveRoomTypeEnum['tencent_css'] ||
+          liveRoomInfo['type'] == liveRoomTypeEnum['tencent_css_pk']) {
+        url = liveRoomInfo['cdn_hls_url'];
       } else {
-        url = item['hls_url'];
+        url = liveRoomInfo['hls_url'];
       }
     } else {
-      url = item['hls_url'];
+      url = liveRoomInfo['hls_url'];
     }
   }
   return url;
@@ -76,9 +76,9 @@ billdGetRandomString(int length) {
   return res;
 }
 
-billdPrint(data, [args]) {
+billdPrint(str, [args]) {
   // ignore: avoid_print
-  print('$data---$args');
+  print('$str---$args');
 }
 
 billdNetworkImage(String url) {

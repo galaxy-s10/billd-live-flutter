@@ -26,9 +26,7 @@ class TopItem extends StatelessWidget {
   Widget build(BuildContext context) {
     const width = 126.0;
     var imgurl = item?['users']?[0]?['avatar'];
-    if (imgurl == null) {
-      imgurl = '';
-    }
+    imgurl ??= '';
     return GestureDetector(
       child: Stack(
         children: [
@@ -145,13 +143,7 @@ class TopItem extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Room(
-                  flvurl: handlePlayUrl(item, 'flv'),
-                  hlsurl: handlePlayUrl(item, 'hls'),
-                  avatar: imgurl,
-                  username: item['users'][0]['username'],
-                  liveRoomId: item['id'],
-                  liveRoomInfo: item),
+              builder: (context) => Room(liveRoomInfo: item),
             ),
           );
         } else {

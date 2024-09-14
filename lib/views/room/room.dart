@@ -12,19 +12,9 @@ import 'package:video_player/video_player.dart';
 import 'package:billd_live_flutter/utils/index.dart';
 
 class Room extends StatefulWidget {
-  final String hlsurl;
-  final String flvurl;
-  final String avatar;
-  final String username;
-  final int liveRoomId;
   final dynamic liveRoomInfo;
 
   const Room({
-    required this.flvurl,
-    required this.hlsurl,
-    required this.avatar,
-    required this.username,
-    required this.liveRoomId,
     required this.liveRoomInfo,
     super.key,
   });
@@ -34,13 +24,12 @@ class Room extends StatefulWidget {
 }
 
 class RankState extends State<Room> {
-  var loading = false;
   final Controller store = get_x.Get.put(Controller());
-  MediaStream? stream;
-  RTCVideoRenderer? remoteRenderer;
-  var show;
-
+  MediaStream? _stream;
+  RTCVideoRenderer? _remoteRenderer;
   RTCPeerConnection? _pc;
+  WsClass? ws;
+  VideoPlayerController? _controller;
   String flvurl = '';
   String hlsurl = '';
   String avatar = '';
@@ -50,25 +39,33 @@ class RankState extends State<Room> {
   var timer;
   var receiver;
   var videoRatio = normalVideoRatio;
-
-  WsClass? ws;
-  VideoPlayerController? _controller;
+  var loading = false;
 
   @override
   void initState() {
     super.initState();
-    // ws.init();
     timer = Timer.periodic(const Duration(seconds: 2), (timer) {
-      billdPrint(ws?.send, '3634732134');
-      // ws?.send(wsMsgTypeEnum['message']!, billdGetRandomString(8), {});
+      billdPrint('3634732134');
     });
-    liveRoomId = widget.liveRoomId;
     liveRoomInfo = widget.liveRoomInfo;
-    hlsurl = widget.hlsurl;
-    avatar = widget.avatar;
-    username = widget.username;
+    liveRoomId = widget.liveRoomInfo['id'];
+    hlsurl = handlePlayUrl(widget.liveRoomInfo, 'hls');
+    flvurl = handlePlayUrl(widget.liveRoomInfo, 'flv');
+    avatar = widget.liveRoomInfo['users'][0]['avatar'];
+    username = widget.liveRoomInfo['users'][0]['username'];
     handleStream();
-    // playVideo(widget.hlsurl);
+    billdPrint('liveRoomInfoliveRoomInfo', liveRoomInfo);
+    if ([
+      liveRoomTypeEnum['system'],
+      liveRoomTypeEnum['srs'],
+      liveRoomTypeEnum['obs'],
+      liveRoomTypeEnum['msr'],
+      liveRoomTypeEnum['pk'],
+      liveRoomTypeEnum['tencent_css'],
+      liveRoomTypeEnum['tencent_css_pk'],
+    ].contains(liveRoomInfo['type'])) {
+      playVideo(hlsurl);
+    }
   }
 
   @override
@@ -78,35 +75,37 @@ class RankState extends State<Room> {
     if (ws != null) {
       ws?.socket.off(wsMsgTypeEnum['connect']!);
       ws?.socket.off(wsMsgTypeEnum['joined']!);
+      ws?.socket.off(wsMsgTypeEnum['batchSendOffer']!);
       ws?.socket.off(wsMsgTypeEnum['nativeWebRtcOffer']!);
+      ws?.socket.off(wsMsgTypeEnum['nativeWebRtcAnswer']!);
       ws?.socket.off(wsMsgTypeEnum['nativeWebRtcCandidate']!);
       ws?.close();
+    }
+    if (_pc != null) {
+      _pc!.close();
+      _pc = null;
+    }
+    if (_stream != null) {
+      _stream!.dispose();
+      _stream = null;
+    }
+    if (_remoteRenderer != null) {
+      _remoteRenderer!.srcObject = null;
+      _remoteRenderer!.dispose();
+      _remoteRenderer = null;
     }
     super.dispose();
   }
 
-  getAllDev() async {
-    var res = await navigator.mediaDevices.enumerateDevices();
-    for (var element in res) {
-      billdPrint(
-          'element22,${element.kind},${element.label},---${element.deviceId}');
-    }
-    return res;
-  }
-
   handleStream() async {
-    startForegroundService();
+    await startForegroundService();
     try {
-      var ss = await navigator.mediaDevices.getDisplayMedia({
+      var stream = await navigator.mediaDevices.getDisplayMedia({
         'video': true,
         'audio': true,
       });
-      billdPrint('sssss', ss);
-      ss.getTracks().forEach((track) {
-        _pc?.addTrack(track, ss);
-      });
       setState(() {
-        stream = ss;
+        _stream = stream;
       });
       handleInitWs();
     } catch (e) {
@@ -119,12 +118,10 @@ class RankState extends State<Room> {
   }
 
   handleInitWs() {
-    billdPrint('handleInitWshandleInitWs');
     setState(() {
       ws = WsClass();
     });
     ws?.socket.on('connect', (data) {
-      billdPrint('connectconnectconnect');
       sendJoin();
     });
     ws?.socket.on(wsMsgTypeEnum['joined']!, (data) {
@@ -135,7 +132,6 @@ class RankState extends State<Room> {
       }
     });
     ws?.socket.on(wsMsgTypeEnum['nativeWebRtcCandidate']!, (data) {
-      billdPrint('nativeWebRtcCandidate', data);
       if (data['receiver'] == ws?.socket.id) {
         billdPrint('是发给我的nativeWebRtcCandidate', data['candidate']);
         RTCIceCandidate iceCandidate =
@@ -144,35 +140,27 @@ class RankState extends State<Room> {
       }
     });
     ws?.socket.on(wsMsgTypeEnum['nativeWebRtcOffer']!, (data) async {
-      billdPrint('nativeWebRtcOffer', data);
       if (data['receiver'] == ws?.socket.id) {
         billdPrint('是发给我的nativeWebRtcOffer');
         _pc = await createPeerConnection({});
-        billdPrint('pcc', _pc);
         setState(() {
           receiver = data['sender'];
         });
 
         if (_pc != null) {
-          // 设置 onTrack 事件
           _pc!.onTrack = (RTCTrackEvent event) async {
-            billdPrint('tttt', event);
             if (event.track.kind == 'video') {
               var rtcvideo = RTCVideoRenderer();
               await rtcvideo.initialize();
-              // 监听视频轨道的流
               for (var stream in event.streams) {
                 rtcvideo.srcObject = stream;
               }
               setState(() {
-                remoteRenderer = rtcvideo;
-                show = true;
+                _remoteRenderer = rtcvideo;
               });
             }
           };
           _pc!.onIceCandidate = (RTCIceCandidate event) {
-            billdPrint('onIceCandidate', event);
-            billdPrint('onIceCandidate', event.candidate);
             sendNativeWebRtcCandidate({
               'candidate': event.candidate,
               'sdpMid': event.sdpMid,
@@ -180,22 +168,18 @@ class RankState extends State<Room> {
             }, receiver);
           };
         }
-        billdPrint('streamstream', data['sdp']);
-        if (stream != null) {
-          stream?.getTracks().forEach((track) async {
-            billdPrint('==addTrack');
-            await _pc?.addTrack(track, stream!);
+        if (_stream != null) {
+          _stream?.getTracks().forEach((track) async {
+            await _pc?.addTrack(track, _stream!);
           });
-          // 创建 RTCSessionDescription
           RTCSessionDescription offer =
               RTCSessionDescription(data['sdp']['sdp'], data['sdp']['type']);
-          // await _pc?.setLocalDescription(offer);
           await _pc?.setRemoteDescription(offer);
           var answerSdp = await _pc?.createAnswer();
           if (answerSdp != null) {
-            billdPrint('==setLocalDescription');
             await _pc?.setLocalDescription(answerSdp);
-            sendNativeWebRtcAnswer(answerSdp, data['sender']);
+            sendNativeWebRtcAnswer(
+                {'type': answerSdp.type, 'sdp': answerSdp.sdp}, data['sender']);
           }
         }
       }
@@ -208,7 +192,6 @@ class RankState extends State<Room> {
   }
 
   sendNativeWebRtcCandidate(candidate, receiver) {
-    billdPrint('sendNativeWebRtcCandidate', candidate);
     ws?.send(wsMsgTypeEnum['nativeWebRtcCandidate']!, billdGetRandomString(8), {
       'candidate': candidate,
       'live_room_id': liveRoomId,
@@ -226,21 +209,16 @@ class RankState extends State<Room> {
     });
   }
 
-  sendNativeWebRtcAnswer(answerSdp, receiver) {
-    billdPrint(
-      'sendNativeWebRtcAnswer',
-      receiver,
-    );
+  sendNativeWebRtcAnswer(sdp, receiver) {
     ws?.send(wsMsgTypeEnum['nativeWebRtcAnswer']!, billdGetRandomString(8), {
       'live_room_id': liveRoomId,
       'sender': ws?.socket.id,
       'receiver': receiver,
-      'sdp': {'type': answerSdp.type, 'sdp': answerSdp.sdp},
+      'sdp': sdp,
     });
   }
 
   sendBatchSendOffer() {
-    billdPrint('batchSendOffer', liveRoomId);
     ws?.send(wsMsgTypeEnum['batchSendOffer']!, billdGetRandomString(8), {
       'roomId': liveRoomId,
     });
@@ -353,10 +331,9 @@ class RankState extends State<Room> {
           SizedBox(
               height: 200,
               width: 200,
-              child: remoteRenderer != null
+              child: _remoteRenderer != null
                   ? RTCVideoView(
-                      remoteRenderer!,
-                      // mirror: true,
+                      _remoteRenderer!,
                     )
                   : Container()),
         ],
