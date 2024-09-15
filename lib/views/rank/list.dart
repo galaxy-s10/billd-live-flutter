@@ -23,8 +23,10 @@ class RankListState extends State<RankList> {
   var hasMore = true;
   var nowPage = 2;
   var pageSize = 50;
+  bool err = true;
+
   @override
-  void initState() {
+  initState() {
     list.addAll(widget.list);
     _controller.addListener(() {
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
@@ -39,7 +41,6 @@ class RankListState extends State<RankList> {
 
   getData() async {
     var res;
-    bool err = false;
     try {
       setState(() {
         loading = true;
@@ -52,20 +53,28 @@ class RankListState extends State<RankList> {
       });
       if (res['code'] == 200) {
         setState(() {
+          err = false;
           hasMore = res['data']['hasMore'];
           list.addAll(res['data']['rows']);
         });
       } else {
-        err = true;
+        setState(() {
+          err = true;
+        });
       }
     } catch (e) {
       billdPrint(e);
+      setState(() {
+        err = true;
+      });
     }
     setState(() {
       loading = false;
     });
     if (err && context.mounted) {
-      BrnToast.show(res['message'], context);
+      var errmsg = res['message'];
+      errmsg ??= networkErrorMsg;
+      BrnToast.show(errmsg, context);
     }
   }
 

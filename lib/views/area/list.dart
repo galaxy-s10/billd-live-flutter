@@ -26,10 +26,12 @@ class AreaListState extends State<AreaList> {
   var loading = false;
   var nowPage = 1;
   var pageSize = 50;
+  bool err = true;
+
   final ScrollController _controller = ScrollController();
 
   @override
-  void initState() {
+  initState() {
     id = widget.id;
     areaName = widget.areaName;
     _controller.addListener(() {
@@ -46,7 +48,6 @@ class AreaListState extends State<AreaList> {
 
   getData() async {
     var res;
-    bool err = false;
     try {
       setState(() {
         loading = true;
@@ -54,20 +55,28 @@ class AreaListState extends State<AreaList> {
       res = await AreaApi.getAreaLiveRoomList(id, nowPage, pageSize);
       if (res['code'] == 200) {
         setState(() {
+          err = false;
           hasMore = res['data']['hasMore'];
           list.addAll(res['data']['rows']);
         });
       } else {
-        err = true;
+        setState(() {
+          err = true;
+        });
       }
     } catch (e) {
       billdPrint(e);
+      setState(() {
+        err = true;
+      });
     }
     setState(() {
       loading = false;
     });
     if (err && context.mounted) {
-      BrnToast.show(res['message'], context);
+      var errmsg = res?['message'];
+      errmsg ??= networkErrorMsg;
+      BrnToast.show(errmsg, context);
     }
   }
 
@@ -76,9 +85,6 @@ class AreaListState extends State<AreaList> {
     final size = MediaQuery.of(context).size;
     var titleHeight = 40.0;
     var h = size.height - store.safeHeight.value - titleHeight;
-    if (loading) {
-      return fullLoading();
-    }
     return Scaffold(
         body: SafeArea(
             child: RefreshIndicator(
@@ -93,74 +99,51 @@ class AreaListState extends State<AreaList> {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ),
-          list.isEmpty
-              ? SizedBox(
-                  height: h,
-                  child: ListView(
-                    children: const [
-                      Center(
-                        child: Text('暂无数据'),
-                      )
-                    ],
-                  ),
-                )
-              : SizedBox(
-                  height: h,
-                  child: ListView.builder(
-                      controller: _controller,
-                      itemCount: 1,
-                      itemBuilder: (context, index) {
-                        var len = list.length;
-                        return Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                          child: Column(
-                            children: [
-                              len == 0
+          SizedBox(
+            height: h,
+            child: ListView.builder(
+                controller: _controller,
+                itemCount: 1,
+                itemBuilder: (context, index) {
+                  var len = list.length;
+                  return Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                    child: Column(
+                      children: [
+                        GridView.count(
+                            crossAxisCount: 2,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            mainAxisSpacing: 0,
+                            crossAxisSpacing: 0,
+                            // Item的宽高比，由于GridView的Item宽高并不由Item自身控制，默认情况下，交叉轴是横轴，因此Item的宽度均分屏幕宽度，这个时候设置childAspectRatio可以改变Item的高度，反之亦然；
+                            childAspectRatio: (normalVideoRatio) * 0.8,
+                            children: List.generate(len, (indey) {
+                              var res = list[indey];
+                              return res == null
                                   ? Container(
                                       alignment: Alignment.centerLeft,
                                       padding:
                                           const EdgeInsets.fromLTRB(0, 2, 0, 2),
                                       child: const Text('暂无数据'),
                                     )
-                                  : GridView.count(
-                                      crossAxisCount: 2,
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      mainAxisSpacing: 0,
-                                      crossAxisSpacing: 0,
-                                      // Item的宽高比，由于GridView的Item宽高并不由Item自身控制，默认情况下，交叉轴是横轴，因此Item的宽度均分屏幕宽度，这个时候设置childAspectRatio可以改变Item的高度，反之亦然；
-                                      childAspectRatio:
-                                          (normalVideoRatio) * 0.8,
-                                      children: List.generate(len, (indey) {
-                                        var res = list[indey];
-                                        return res == null
-                                            ? Container(
-                                                alignment: Alignment.centerLeft,
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        0, 2, 0, 2),
-                                                child: const Text('暂无数据'),
-                                              )
-                                            : AreaItemWidget(
-                                                item: res,
-                                              );
-                                      })),
-                              loading == true
-                                  ? const Text('加载中...')
-                                  : Container(),
-                              hasMore == false
-                                  ? const Text(
-                                      '已加载所有',
-                                    )
-                                  : Container(),
-                            ],
-                          ),
-                        );
-                      }),
-                ),
+                                  : AreaItemWidget(
+                                      item: res,
+                                    );
+                            })),
+                        loading == true ? const Text('加载中...') : Container(),
+                        hasMore == false
+                            ? const Text(
+                                '已加载所有',
+                              )
+                            : Container(),
+                      ],
+                    ),
+                  );
+                }),
+          ),
         ],
       ),
       onRefresh: () async {

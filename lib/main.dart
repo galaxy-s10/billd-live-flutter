@@ -112,7 +112,7 @@ class NavBarState extends State<NavBarWidget> {
   }
 }
 
-BottomNavigationBarItem createBarItem(String iconName, String lable) {
+BottomNavigationBarItem createBarItem(String iconName, String label) {
   return BottomNavigationBarItem(
       icon: Image.asset(
         "assets/images/tabbar/$iconName.png",
@@ -122,5 +122,5 @@ BottomNavigationBarItem createBarItem(String iconName, String lable) {
         "assets/images/tabbar/${iconName}_active.png",
         width: 20,
       ),
-      label: lable);
+      label: label);
 }

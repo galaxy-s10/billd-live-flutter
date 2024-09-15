@@ -6,6 +6,7 @@ import 'package:billd_live_flutter/enum.dart';
 import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background/flutter_background.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 Future<bool> startForegroundService() async {
@@ -136,6 +137,8 @@ Future<bool> billdModal(context,
   return completer.future;
 }
 
+const loadingText = Text('加载中...');
+
 fullLoading() {
   return Scaffold(
     body: SafeArea(
@@ -146,10 +149,18 @@ fullLoading() {
               color: themeColor,
             ),
             Container(
-              margin: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-              child: const Text('加载中...'),
-            )
+                margin: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                child: loadingText)
           ])),
     ),
   );
+}
+
+getAllDev() async {
+  var res = await navigator.mediaDevices.enumerateDevices();
+  for (var element in res) {
+    billdPrint(
+        'element,${element.kind},${element.label},---${element.deviceId}');
+  }
+  return res;
 }

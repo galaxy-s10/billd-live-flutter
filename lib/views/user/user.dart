@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:billd_live_flutter/api/user_api.dart';
 import 'package:billd_live_flutter/components/Loading/index.dart';
 import 'package:billd_live_flutter/const.dart';
-import 'package:billd_live_flutter/enum.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/views/live/live.dart';
 import 'package:flutter/material.dart';
@@ -33,11 +30,6 @@ class UserState extends State<User> {
   @override
   initState() {
     super.initState();
-    // var ws = WsClass();
-    // billdPrint('wss', ws);
-    // Timer.periodic(const Duration(seconds: 5), (timer) {
-    //   ws.send(wsMsgTypeEnum['message']!, 'ddd', {});
-    // });
   }
 
   @override

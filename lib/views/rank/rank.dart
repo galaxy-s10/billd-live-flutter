@@ -34,7 +34,7 @@ class RankState extends State<Rank> {
   var pageSize = 50;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     getData();
     handleAudio();
@@ -68,12 +68,15 @@ class RankState extends State<Rank> {
       });
       if (res['code'] == 200) {
         setState(() {
+          err = false;
           liveroomdata = res['data'];
           topdata = res['data']['rows'].sublist(0, 3);
           otherdata = res['data']['rows'].sublist(3);
         });
       } else {
-        err = true;
+        setState(() {
+          err = true;
+        });
       }
     } catch (e) {
       billdPrint(e);
@@ -84,13 +87,10 @@ class RankState extends State<Rank> {
     setState(() {
       loading = false;
     });
-    var msg = res?['message'];
-    if (err) {
-      if (msg is String) {
-        BrnToast.show(msg, context);
-      } else {
-        BrnToast.show(networkErrorMsg, context);
-      }
+    if (err && context.mounted) {
+      var errmsg = res?['message'];
+      errmsg ??= networkErrorMsg;
+      BrnToast.show(errmsg, context);
     }
   }
 
@@ -101,6 +101,7 @@ class RankState extends State<Rank> {
     return mediaStream;
   }
 
+  @override
   Widget build(BuildContext context) {
     if (err) {
       return const Text(

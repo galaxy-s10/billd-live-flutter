@@ -26,7 +26,7 @@ class HomeState extends State<Home> {
   Map<String, dynamic> livedata = {};
   ValueNotifier<int> currentItemIndex = ValueNotifier(0);
   bool loading = false;
-  var err = false;
+  var err = true;
   double videoRatio = normalVideoRatio;
 
   String line = 'hls';
@@ -67,6 +67,7 @@ class HomeState extends State<Home> {
       res = await LiveApi.getLiveList();
       if (res['code'] == 200) {
         setState(() {
+          err = false;
           livedata = res['data'];
         });
       } else {
@@ -80,13 +81,10 @@ class HomeState extends State<Home> {
         err = true;
       });
     }
-    var msg = res?['message'];
-    if (err) {
-      if (msg is String) {
-        BrnToast.show(msg, context);
-      } else {
-        BrnToast.show(networkErrorMsg, context);
-      }
+    if (err && context.mounted) {
+      var errmsg = res?['message'];
+      errmsg ??= networkErrorMsg;
+      BrnToast.show(errmsg, context);
     }
   }
 

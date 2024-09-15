@@ -384,14 +384,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
-  live_flutter_plugin:
-    dependency: "direct main"
-    description:
-      name: live_flutter_plugin
-      sha256: "93a6252de236b3c07c3c02076538ddd3afc251d798bb21bc6312f681f8a0b934"
-      url: "https://pub.dev"
-    source: hosted
-    version: "12.0.1"
   logging:
     dependency: transitive
     description:

@@ -42,7 +42,7 @@ class RankState extends State<Room> {
   var loading = false;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     timer = Timer.periodic(const Duration(seconds: 2), (timer) {
       billdPrint('3634732134');

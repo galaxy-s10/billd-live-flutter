@@ -17,13 +17,12 @@ class Area extends StatefulWidget {
 class AreaState extends State<Area> {
   List<dynamic> list = [];
 
-  var err = false;
+  var err = true;
   var loading = false;
 
   @override
   initState() {
     super.initState();
-    billdPrint('initState-area');
     getData();
   }
 
@@ -36,10 +35,13 @@ class AreaState extends State<Area> {
       res = await AreaApi.getAreaAreaLiveRoomList();
       if (res['code'] == 200) {
         setState(() {
+          err = false;
           list = res['data']['rows'];
         });
       } else {
-        err = true;
+        setState(() {
+          err = true;
+        });
       }
     } catch (e) {
       billdPrint(e);
@@ -50,13 +52,10 @@ class AreaState extends State<Area> {
     setState(() {
       loading = false;
     });
-    var msg = res?['message'];
-    if (err) {
-      if (msg is String) {
-        BrnToast.show(msg, context);
-      } else {
-        BrnToast.show(networkErrorMsg, context);
-      }
+    if (err && context.mounted) {
+      var errmsg = res?['message'];
+      errmsg ??= networkErrorMsg;
+      BrnToast.show(errmsg, context);
     }
   }
 
