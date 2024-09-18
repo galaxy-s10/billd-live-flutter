@@ -44,7 +44,7 @@ class AreaState extends State<Area> {
         });
       }
     } catch (e) {
-      billdPrint(e);
+      billdPrint('getData错误', e);
       setState(() {
         err = true;
       });
@@ -52,107 +52,107 @@ class AreaState extends State<Area> {
     setState(() {
       loading = false;
     });
-    if (err && context.mounted) {
+    if (err && mounted) {
       var errmsg = res?['message'];
       errmsg ??= networkErrorMsg;
       BrnToast.show(errmsg, context);
     }
   }
 
+  refreshData() async {
+    await getData();
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (err) {
-      return const Text(
-        '分区数据加载失败',
-        style: TextStyle(
-          fontSize: 20,
-        ),
-      );
-    }
-    if (loading) {
-      return fullLoading();
-    }
     return RefreshIndicator(
-      child: ListView.builder(
-          itemCount: list.length,
-          itemBuilder: (context, index) {
-            if (list.isNotEmpty) {
-              var len = list[index]['area_live_rooms'].length;
-              return Container(
-                color: Colors.white,
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                child: Column(
-                  children: [
-                    Container(
+        child: err
+            ? ListView.builder(
+                itemCount: 1,
+                itemBuilder: (context, index) {
+                  return const Text('分区数据加载错误');
+                })
+            : ListView.builder(
+                itemCount: list.length,
+                itemBuilder: (context, index) {
+                  if (list.isNotEmpty) {
+                    var len = list[index]['area_live_rooms'].length;
+                    return Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                      child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(child: Text(list[index]['name'])),
-                            GestureDetector(
-                              child: const Text(
-                                '查看全部',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AreaList(
-                                      id: list[index]['id'],
-                                      areaName: list[index]['name'],
+                      child: Column(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(child: Text(list[index]['name'])),
+                                  GestureDetector(
+                                    child: const Text(
+                                      '查看全部',
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                  ),
-                                );
-                              },
-                            )
-                          ]),
-                    ),
-                    len == 0
-                        ? Container(
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
-                            child: const Text('暂无数据'),
-                          )
-                        : GridView.count(
-                            crossAxisCount: 2,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            mainAxisSpacing: 0,
-                            crossAxisSpacing: 0,
-                            // Item的宽高比，由于GridView的Item宽高并不由Item自身控制，默认情况下，交叉轴是横轴，因此Item的宽度均分屏幕宽度，这个时候设置childAspectRatio可以改变Item的高度，反之亦然；
-                            childAspectRatio: (normalVideoRatio) * 0.8,
-                            children: List.generate(len, (indey) {
-                              var res = list[index]['area_live_rooms'][indey]
-                                  ['live_room'];
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AreaList(
+                                            id: list[index]['id'],
+                                            areaName: list[index]['name'],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  )
+                                ]),
+                          ),
+                          len == 0
+                              ? Container(
+                                  alignment: Alignment.centerLeft,
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                                  child: const Text('暂无数据'),
+                                )
+                              : GridView.count(
+                                  crossAxisCount: 2,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  mainAxisSpacing: 0,
+                                  crossAxisSpacing: 0,
+                                  // Item的宽高比，由于GridView的Item宽高并不由Item自身控制，默认情况下，交叉轴是横轴，因此Item的宽度均分屏幕宽度，这个时候设置childAspectRatio可以改变Item的高度，反之亦然；
+                                  childAspectRatio: (normalVideoRatio) * 0.8,
+                                  children: List.generate(len, (indey) {
+                                    var res = list[index]['area_live_rooms']
+                                        [indey]['live_room'];
 
-                              return res == null
-                                  ? Container(
-                                      alignment: Alignment.centerLeft,
-                                      padding:
-                                          const EdgeInsets.fromLTRB(0, 2, 0, 2),
-                                      child: const Text('暂无数据'),
-                                    )
-                                  : AreaItemWidget(
-                                      item: res,
-                                    );
-                            })),
-                  ],
-                ),
-              );
-            }
-            return null;
-          }),
-      onRefresh: () async {
-        await getData();
-        if (context.mounted) {
-          BrnToast.show('刷新成功', context);
-        }
-      },
-    );
+                                    return res == null
+                                        ? Container(
+                                            alignment: Alignment.centerLeft,
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 2, 0, 2),
+                                            child: const Text('暂无数据'),
+                                          )
+                                        : AreaItemWidget(
+                                            item: res,
+                                          );
+                                  })),
+                        ],
+                      ),
+                    );
+                  }
+                  return null;
+                }),
+        onRefresh: () async {
+          await refreshData();
+          if (context.mounted) {
+            BrnToast.show('刷新成功', context,
+                duration: const Duration(seconds: 1));
+          }
+        });
   }
 }

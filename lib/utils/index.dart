@@ -9,6 +9,45 @@ import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+computedBox({
+  width,
+  height,
+  maxWidth,
+  maxHeight,
+  minWidth,
+  minHeight,
+}) {
+  var ratio = height / width;
+  var minWidth2 = minWidth != 0 ? minWidth : 0;
+  var minHeight2 = minHeight != 0 ? minHeight : 0;
+  var width2 = width;
+  var height2 = height;
+  billdPrint(width2, minWidth2);
+  if (width2 < minWidth2) {
+    width2 = minWidth2;
+    height2 = minWidth2 * ratio;
+  }
+  billdPrint(height2, minHeight2);
+  if (height2 < minHeight2) {
+    width2 = minHeight2 / ratio;
+    height2 = minHeight2;
+  }
+
+  if (width2 > maxWidth) {
+    width2 = maxWidth;
+    height2 = maxWidth * ratio;
+  }
+  if (height2 > maxHeight) {
+    width2 = maxHeight / ratio;
+    height2 = maxHeight;
+  }
+
+  return {
+    'width': width2,
+    'height': height2,
+  };
+}
+
 Future<bool> startForegroundService() async {
   const androidConfig = FlutterBackgroundAndroidConfig(
     notificationTitle: 'Title of the notification',

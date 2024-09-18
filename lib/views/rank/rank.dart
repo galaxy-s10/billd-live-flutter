@@ -37,21 +37,6 @@ class RankState extends State<Rank> {
   initState() {
     super.initState();
     getData();
-    handleAudio();
-  }
-
-  handleAudio() async {
-    // try {
-    //   const channel = const MethodChannel("your_channel_name");
-    //   // 通过渠道，调用原生代码代码的方法
-    //   Future future =
-    //       channel.invokeMethod("your_method_name", {"msg": 'd44ty43y3'});
-    //   // 打印执行的结果
-    //   billdPrint('打印执行的结果');
-    //   billdPrint(future.toString());
-    // } on PlatformException catch (e) {
-    //   billdPrint(e.toString());
-    // }
   }
 
   getData() async {
@@ -79,7 +64,7 @@ class RankState extends State<Rank> {
         });
       }
     } catch (e) {
-      billdPrint(e);
+      billdPrint('getData错误', e);
       setState(() {
         err = true;
       });
@@ -87,30 +72,22 @@ class RankState extends State<Rank> {
     setState(() {
       loading = false;
     });
-    if (err && context.mounted) {
+    if (err && mounted) {
       var errmsg = res?['message'];
       errmsg ??= networkErrorMsg;
-      BrnToast.show(errmsg, context);
+      BrnToast.show(
+        errmsg,
+        context,
+      );
     }
   }
 
-  Future<MediaStream> createMediaStream() async {
-    var mediaStream = await createLocalMediaStream('ddd');
-    // var audioTrack = MediaStreamTrack();
-    // mediaStream.addTrack(audioTrack);
-    return mediaStream;
+  refreshData() async {
+    await getData();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (err) {
-      return const Text(
-        '排行榜数据加载失败',
-        style: TextStyle(
-          fontSize: 20,
-        ),
-      );
-    }
     final size = MediaQuery.of(context).size;
     var topHeight = 290.0;
     var h = size.height -
@@ -121,46 +98,56 @@ class RankState extends State<Rank> {
       return fullLoading();
     }
     return RefreshIndicator(
-      child: Column(children: [
-        Container(
-          alignment: Alignment.center,
-          height: topHeight,
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                    margin: const EdgeInsets.fromLTRB(0, 120, 0, 0),
-                    child: TopItem(
-                      rankNum: NumEnum.two,
-                      item: topdata[1],
-                    )),
-                Container(
-                    margin: const EdgeInsets.fromLTRB(0, 50, 0, 0),
-                    child: TopItem(
-                      rankNum: NumEnum.one,
-                      item: topdata[0],
-                    )),
-                Container(
-                    margin: const EdgeInsets.fromLTRB(0, 120, 0, 0),
-                    child: TopItem(
-                      rankNum: NumEnum.three,
-                      item: topdata[2],
-                    )),
-              ]),
-        ),
-        SizedBox(
-            height: h,
-            child: RankList(
-              list: otherdata,
-            ))
-      ]),
-      onRefresh: () async {
-        await getData();
-        if (context.mounted) {
-          BrnToast.show('刷新成功', context);
-        }
-      },
-    );
+        child: err
+            ? ListView.builder(
+                itemCount: 1,
+                itemBuilder: (context, index) {
+                  return const Text('排行榜数据加载错误');
+                })
+            : ListView.builder(
+                itemCount: 1,
+                itemBuilder: (context, index) {
+                  return Column(children: [
+                    Container(
+                      alignment: Alignment.center,
+                      height: topHeight,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                                margin: const EdgeInsets.fromLTRB(0, 120, 0, 0),
+                                child: TopItem(
+                                  rankNum: NumEnum.two,
+                                  item: topdata[1],
+                                )),
+                            Container(
+                                margin: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+                                child: TopItem(
+                                  rankNum: NumEnum.one,
+                                  item: topdata[0],
+                                )),
+                            Container(
+                                margin: const EdgeInsets.fromLTRB(0, 120, 0, 0),
+                                child: TopItem(
+                                  rankNum: NumEnum.three,
+                                  item: topdata[2],
+                                )),
+                          ]),
+                    ),
+                    SizedBox(
+                        height: h,
+                        child: RankList(
+                          list: otherdata,
+                        ))
+                  ]);
+                }),
+        onRefresh: () async {
+          await refreshData();
+          if (context.mounted) {
+            BrnToast.show('刷新成功', context,
+                duration: const Duration(seconds: 1));
+          }
+        });
   }
 }

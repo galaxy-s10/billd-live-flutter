@@ -15,4 +15,16 @@ class LiveApi {
     var res = await HttpRequest.post('/live/close_live', data: {});
     return res;
   }
+
+  static updateMyLiveRoomInfo(data) async {
+    var res =
+        await HttpRequest.post('/live/update_my_live_room_info', data: data);
+    return res;
+  }
+
+  static getliveRoomOnlineUser(params) async {
+    var res =
+        await HttpRequest.get('/live/live_room_online_user', params: params);
+    return res;
+  }
 }

@@ -1,11 +1,10 @@
 import 'dart:math';
-import 'package:billd_live_flutter/api/tencentcloud_css_api.dart';
+
 import 'package:billd_live_flutter/enum.dart';
 import 'package:billd_live_flutter/utils/index.dart';
-
 import 'package:billd_live_flutter/api/live_api.dart';
-import 'package:billd_live_flutter/api/srs_api.dart';
 import 'package:billd_live_flutter/stores/app.dart';
+import 'package:billd_live_flutter/utils/rtc_sdk.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -23,7 +22,7 @@ class WebRTCWidget extends StatefulWidget {
 
 class RTCState extends State<WebRTCWidget> {
   RTCVideoRenderer? _localRenderer;
-  RTCPeerConnection? _pc;
+  RTCClass? _pc;
   MediaStream? _stream;
   final Controller store = get_x.Get.put(Controller());
 
@@ -34,9 +33,10 @@ class RTCState extends State<WebRTCWidget> {
   ];
 
   final List<Map<String, dynamic>> typeRadioButtons = [
-    {'label': 'srs直播', 'index': 0},
-    {'label': 'cdn直播', 'index': 1},
-    {'label': '打pk直播', 'index': 2},
+    {'label': 'srs直播', 'index': 0, 'val': liveRoomTypeEnum['srs']},
+    {'label': 'cdn直播', 'index': 1, 'val': liveRoomTypeEnum['tencent_css']},
+    {'label': 'rtc直播', 'index': 2, 'val': liveRoomTypeEnum['wertc_live']},
+    // {'label': '打pk直播', 'index': 3},
   ];
 
   var streamIndex = 0;
@@ -50,92 +50,28 @@ class RTCState extends State<WebRTCWidget> {
   }
 
   handleOffer() async {
-    try {
-      var offer = await _pc!.createOffer({});
-      billdPrint('创建offer成功', offer);
-      await _pc!.setLocalDescription(offer);
-      billdPrint('设置本地描述成功');
-      return offer;
-    } catch (e) {
-      billdPrint('handleOffer失败');
-      billdPrint(e);
-      if (context.mounted) {
-        BrnToast.show('handleOffer失败', context);
+    var offer = await _pc?.handleOffer();
+    if (offer == false) {
+      billdPrint('handleOffer错误', e);
+      if (mounted) {
+        BrnToast.show('handleOffer错误', context);
       }
+    } else {
+      return offer;
     }
   }
 
   handleAnswer(offer) async {
     var flag = false;
-    try {
-      var liveRoomInfo = store.userInfo['live_rooms'][0];
-      String streamurl =
-          '${liveRoomInfo['rtmp_url']}?pushkey=${liveRoomInfo['key']}&pushtype=${liveRoomTypeEnum['srs']}';
-      billdPrint('dsfdsg', offer.sdp);
-      var srsres = await SRSApi.getRtcV1Publish(
-          api: '/rtc/v1/publish/',
-          sdp: offer.sdp,
-          streamurl: streamurl,
-          tid: Random().nextDouble().toString().substring(2));
-      if (srsres['data']['code'] == 400) {
-        flag = false;
-        billdPrint('获取remotesdp错误', srsres['data']);
-        if (context.mounted) {
-          BrnToast.show('获取remotesdp错误', context);
-        }
-      } else {
-        await _pc!.setRemoteDescription(
-            RTCSessionDescription(srsres['data']['sdp'], 'answer'));
-        billdPrint('设置远程描述成功');
-        flag = true;
-      }
-    } catch (e) {
-      billdPrint('handleAnswer失败');
-      billdPrint(e);
-      flag = false;
-      if (context.mounted) {
-        BrnToast.show('handleAnswer失败', context);
-      }
-    }
+    if (_pc == null) return false;
+    flag = await _pc!.handleAnswer(offer);
     return flag;
   }
 
-  handleAnswerByCss(offer) async {
+  handleAnswerByTencentcloudCss(offer) async {
     var flag = false;
-    try {
-      var liveRoomInfo = store.userInfo['live_rooms'][0];
-      var pushurlRes = await TencentcloudCssApi.push(liveRoomInfo['id']);
-      billdPrint('pushurlRes', pushurlRes);
-      if (pushurlRes['code'] == 200) {
-        String streamurl = pushurlRes['data']['push_webrtc_url'];
-        var cssres = await TencentcloudCssApi.pushstream(
-          sdp: offer.sdp,
-          streamurl: streamurl,
-          sessionid: billdGetRandomString(21),
-        );
-        billdPrint('cssres', cssres);
-        if (cssres['errcode'] != 0) {
-          flag = false;
-          billdPrint('获取remotesdp错误', cssres['data']);
-          if (context.mounted) {
-            BrnToast.show('获取remotesdp错误', context);
-          }
-        } else {
-          billdPrint('ddsds', cssres['remotesdp']['sdp']);
-          await _pc!.setRemoteDescription(
-              RTCSessionDescription(cssres['remotesdp']['sdp'], 'answer'));
-          billdPrint('设置远程描述成功');
-          flag = true;
-        }
-      }
-    } catch (e) {
-      billdPrint('handleAnswerByCss失败');
-      billdPrint(e);
-      flag = false;
-      if (context.mounted) {
-        BrnToast.show('handleAnswerByCss失败', context);
-      }
-    }
+    if (_pc == null) return false;
+    flag = await _pc!.handleAnswerByTencentcloudCss(offer);
     return flag;
   }
 
@@ -159,6 +95,7 @@ class RTCState extends State<WebRTCWidget> {
           'audio': true,
         });
       } else if (streamRadioButtons[streamIndex]['index'] == 2) {
+        await startForegroundService();
         stream = await navigator.mediaDevices.getDisplayMedia({
           'video': true,
           'audio': true,
@@ -166,7 +103,7 @@ class RTCState extends State<WebRTCWidget> {
       }
       if (stream != null) {
         stream.getTracks().forEach((track) async {
-          await _pc?.addTrack(track, stream!);
+          await _pc?.pc?.addTrack(track, stream!);
         });
         var localRenderer = RTCVideoRenderer();
         await localRenderer.initialize();
@@ -177,15 +114,26 @@ class RTCState extends State<WebRTCWidget> {
         });
       }
     } catch (e) {
-      billdPrint('报错了');
-      billdPrint(e);
-      if (context.mounted) {
-        BrnToast.show('拒绝授权', context);
+      billdPrint('handleStream错误', e);
+      if (mounted) {
+        BrnToast.show('用户拒绝授权', context);
       }
     }
   }
 
   handleCloseLive() async {
+    try {
+      await handleClose();
+      await LiveApi.getCloseLive();
+    } catch (e) {
+      billdPrint('handleCloseLive错误', e);
+      if (mounted) {
+        BrnToast.show('handleCloseLive错误', context);
+      }
+    }
+  }
+
+  handleClose() async {
     try {
       if (_pc != null) {
         _pc!.close();
@@ -200,47 +148,45 @@ class RTCState extends State<WebRTCWidget> {
         _localRenderer!.dispose();
         _localRenderer = null;
       }
-      await LiveApi.getCloseLive();
     } catch (e) {
-      billdPrint('handleCloseLive失败');
-      if (context.mounted) {
-        BrnToast.show('handleCloseLive失败', context);
+      billdPrint('handleClose错误', e);
+      if (mounted) {
+        BrnToast.show('handleClose错误', context);
       }
     }
   }
 
   handleStartLive() async {
-    await startForegroundService();
-    if (_pc != null) {
-      await _pc!.close();
-    }
+    await handleClose();
     var res = await LiveApi.getIsLive();
     if (res['data'].length == 0) {
-      _pc = await createPeerConnection({
-        // 'iceServers': [
-        //   {
-        //     'urls': 'turn:hk.hsslive.cn',
-        //     'username': 'hss',
-        //     'credential': '123456',
-        //   },
-        // ]
-      });
+      await LiveApi.updateMyLiveRoomInfo(
+          {"type": typeRadioButtons[typeIndex]['val']});
+      _pc = RTCClass();
+      await _pc?.init();
       await handleStream();
       var offer = await handleOffer();
       var flag = false;
-      if (typeRadioButtons[streamIndex]['index'] == 0) {
+      if (typeRadioButtons[typeIndex]['index'] == 0) {
         flag = await handleAnswer(offer);
-      } else if (typeRadioButtons[streamIndex]['index'] == 1) {
-        flag = await handleAnswerByCss(offer);
-      } else if (typeRadioButtons[streamIndex]['index'] == 2) {}
+      } else if (typeRadioButtons[typeIndex]['index'] == 1) {
+        flag = await handleAnswerByTencentcloudCss(offer);
+      } else if (typeRadioButtons[typeIndex]['index'] == 2) {}
 
       if (flag) {
+        if (mounted) {
+          BrnToast.show('开播成功', context, duration: const Duration(seconds: 1));
+        }
         setState(() {
           status = LiveStatus.living;
         });
+      } else {
+        if (mounted) {
+          BrnToast.show('handleStartLive错误', context);
+        }
       }
     } else {
-      if (context.mounted) {
+      if (mounted) {
         BrnDialogManager.showConfirmDialog(context,
             title: "提示",
             cancel: '取消',
@@ -250,8 +196,9 @@ class RTCState extends State<WebRTCWidget> {
           setState(() {
             status = LiveStatus.nolive;
           });
-          if (context.mounted) {
-            BrnToast.show('断开直播成功', context);
+          if (mounted) {
+            BrnToast.show('断开直播成功', context,
+                duration: const Duration(seconds: 1));
             Navigator.pop(context, true);
           }
         }, onCancel: () {
@@ -281,7 +228,6 @@ class RTCState extends State<WebRTCWidget> {
           child: _localRenderer != null
               ? RTCVideoView(
                   _localRenderer!,
-                  // mirror: true,
                 )
               : null,
         ),
@@ -292,15 +238,12 @@ class RTCState extends State<WebRTCWidget> {
                 const SizedBox(
                   width: 10,
                 ),
-                const Text("直播画面："),
+                const Text("画面："),
                 ...streamRadioButtons.map((item) {
                   return BrnRadioButton(
                     radioIndex: item['index'],
                     isSelected: streamIndex == item['index'],
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 5),
-                      child: Text(item['label']),
-                    ),
+                    child: Text(item['label']),
                     onValueChangedAtIndex: (index, value) {
                       setState(() {
                         streamIndex = index;
@@ -317,15 +260,12 @@ class RTCState extends State<WebRTCWidget> {
               const SizedBox(
                 width: 10,
               ),
-              const Text("直播类型："),
+              const Text("类型："),
               ...typeRadioButtons.map((radioButton) {
                 return BrnRadioButton(
                   radioIndex: radioButton['index'],
                   isSelected: typeIndex == radioButton['index'],
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 5),
-                    child: Text(radioButton['label']),
-                  ),
+                  child: Text(radioButton['label']),
                   onValueChangedAtIndex: (index, value) {
                     setState(() {
                       typeIndex = index;
@@ -348,7 +288,6 @@ class RTCState extends State<WebRTCWidget> {
                         confirm: '确认',
                         message: '是否开播', onConfirm: () async {
                       Navigator.pop(context, true);
-                      await LiveApi.getCloseLive();
                       handleStartLive();
                     }, onCancel: () {
                       Navigator.pop(context, false);
@@ -371,7 +310,8 @@ class RTCState extends State<WebRTCWidget> {
                           await handleCloseLive();
                           setState(() {
                             status = LiveStatus.nolive;
-                            BrnToast.show('关闭直播成功', context);
+                            BrnToast.show('关闭直播成功', context,
+                                duration: const Duration(seconds: 1));
                             Navigator.pop(context);
                           });
                         });

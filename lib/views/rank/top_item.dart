@@ -83,10 +83,10 @@ class TopItem extends StatelessWidget {
                 children: [
                   Container(
                     transform: Matrix4.translationValues(0, 70, 0),
-                    padding: const EdgeInsets.fromLTRB(20, 2, 20, 2),
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                     decoration: BoxDecoration(
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
+                            const BorderRadius.all(Radius.circular(20)),
                         border: Border.all(color: colorMap[rankNum]!)),
                     child: rankNum == NumEnum.one
                         ? const Text(
@@ -119,9 +119,9 @@ class TopItem extends StatelessWidget {
                           decoration: BoxDecoration(
                             border: Border.all(color: themeColor),
                             borderRadius:
-                                const BorderRadius.all(Radius.circular(10)),
+                                const BorderRadius.all(Radius.circular(20)),
                           ),
-                          padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                          padding: const EdgeInsets.fromLTRB(0, 1, 0, 1),
                           width: 45,
                           child: Container(
                               transform: Matrix4.translationValues(0, -1, 0),
@@ -147,7 +147,8 @@ class TopItem extends StatelessWidget {
             ),
           );
         } else {
-          BrnToast.show('当前房间未在直播', context);
+          BrnToast.show('当前房间未在直播', context,
+              duration: const Duration(seconds: 1));
         }
       },
     );

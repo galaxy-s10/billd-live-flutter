@@ -63,7 +63,7 @@ class RankListState extends State<RankList> {
         });
       }
     } catch (e) {
-      billdPrint(e);
+      billdPrint('getData错误', e);
       setState(() {
         err = true;
       });
@@ -71,166 +71,187 @@ class RankListState extends State<RankList> {
     setState(() {
       loading = false;
     });
-    if (err && context.mounted) {
-      var errmsg = res['message'];
+    if (err && mounted) {
+      var errmsg = res?['message'];
       errmsg ??= networkErrorMsg;
       BrnToast.show(errmsg, context);
     }
   }
 
+  refreshData() async {
+    await getData();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        controller: _controller,
-        shrinkWrap: true,
-        itemCount: 1,
-        padding: EdgeInsets.zero,
-        itemBuilder: (context, index) {
-          return Container(
-            color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-            margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-            child: Column(
-              children: [
-                Column(
-                    children: List.generate(
-                  list.length,
-                  (indey) {
-                    var res = list[indey];
-                    var imgurl = res?['users']?[0]?['avatar'];
+    return RefreshIndicator(
+        child: ListView.builder(
+            controller: _controller,
+            shrinkWrap: true,
+            itemCount: 1,
+            padding: EdgeInsets.zero,
+            itemBuilder: (context, index) {
+              return Column(
+                children: [
+                  Column(
+                      children: List.generate(
+                    list.length,
+                    (indey) {
+                      var res = list[indey];
+                      var imgurl = res?['users']?[0]?['avatar'];
 
-                    return res == null
-                        ? Container(
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
-                            child: const Text('暂无数据'),
-                          )
-                        : GestureDetector(
-                            child: Container(
-                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-                                color: indey % 2 == 0
-                                    ? Colors.white
-                                    : const Color.fromRGBO(250, 251, 252, 1),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Container(
-                                            decoration: const BoxDecoration(
-                                              color: Color.fromRGBO(
-                                                  132, 249, 218, 1),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(10)),
-                                            ),
-                                            width: 55,
-                                            height: 22,
-                                            margin: const EdgeInsets.fromLTRB(
-                                                10, 0, 10, 0),
-                                            child: Center(
-                                              child: Text(
-                                                '${handleZero(indey + 3)}',
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontStyle:
-                                                        FontStyle.italic),
-                                              ),
-                                            )),
-                                        imgurl == null || imgurl == ''
-                                            ? Container(
-                                                width: 26,
-                                                height: 26,
+                      return res == null
+                          ? Container(
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                              child: const Text('暂无数据'),
+                            )
+                          : GestureDetector(
+                              child: Container(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                                  color: indey % 2 == 0
+                                      ? Colors.white
+                                      : const Color.fromRGBO(250, 251, 252, 1),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Center(
+                                            child: Container(
                                                 decoration: const BoxDecoration(
-                                                  color: themeColor,
+                                                  color: Color.fromRGBO(
+                                                      132, 249, 218, 1),
                                                   borderRadius:
                                                       BorderRadius.all(
-                                                          Radius.circular(15)),
+                                                          Radius.circular(20)),
                                                 ),
-                                              )
-                                            : SizedBox(
-                                                width: 26,
-                                                height: 26,
-                                                child: CircleAvatar(
-                                                  backgroundImage:
-                                                      billdNetworkImage(imgurl),
-                                                )),
-                                        Container(
-                                          margin: const EdgeInsets.fromLTRB(
-                                              10, 0, 0, 0),
-                                          width: 150,
-                                          child: Text(
-                                            list[indey]['users'][0]['username'],
-                                            style: const TextStyle(
-                                                fontSize: 12,
-                                                overflow:
-                                                    TextOverflow.ellipsis),
-                                          ),
-                                        ),
-                                        list[indey]['live'] != null
-                                            ? Container(
-                                                alignment: Alignment.center,
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      color: themeColor),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(10)),
-                                                ),
+                                                width: 55,
+                                                height: 22,
+                                                alignment:
+                                                    Alignment.center, // 水平和垂直居中
                                                 margin:
                                                     const EdgeInsets.fromLTRB(
-                                                        10, 0, 0, 0),
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        6, 2, 6, 2),
-                                                child: Container(
-                                                    transform: Matrix4
-                                                        .translationValues(
-                                                            0, -1, 0),
-                                                    child: const Text(
-                                                      '直播中',
-                                                      style: TextStyle(
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: themeColor),
-                                                    )),
-                                              )
-                                            : Container(),
-                                      ],
+                                                        10, 0, 10, 0),
+                                                child: Center(
+                                                  child: Text(
+                                                    '${handleZero(indey + 3)}',
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontStyle:
+                                                            FontStyle.italic),
+                                                  ),
+                                                )),
+                                          ),
+                                          imgurl == null || imgurl == ''
+                                              ? Container(
+                                                  width: 26,
+                                                  height: 26,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    color: themeColor,
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                13)),
+                                                  ),
+                                                )
+                                              : SizedBox(
+                                                  width: 26,
+                                                  height: 26,
+                                                  child: CircleAvatar(
+                                                    backgroundImage:
+                                                        billdNetworkImage(
+                                                            imgurl),
+                                                  )),
+                                          Container(
+                                            margin: const EdgeInsets.fromLTRB(
+                                                10, 0, 0, 0),
+                                            width: 150,
+                                            child: Text(
+                                              list[indey]['users'][0]
+                                                  ['username'],
+                                              style: const TextStyle(
+                                                  fontSize: 12,
+                                                  overflow:
+                                                      TextOverflow.ellipsis),
+                                            ),
+                                          ),
+                                          list[indey]['live'] != null
+                                              ? Container(
+                                                  alignment: Alignment.center,
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        color: themeColor),
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(
+                                                                20)),
+                                                  ),
+                                                  margin:
+                                                      const EdgeInsets.fromLTRB(
+                                                          10, 0, 0, 0),
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          6, 2, 6, 2),
+                                                  child: Container(
+                                                      transform: Matrix4
+                                                          .translationValues(
+                                                              0, -1, 0),
+                                                      child: const Text(
+                                                        '直播中',
+                                                        style: TextStyle(
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: themeColor),
+                                                      )),
+                                                )
+                                              : Container(),
+                                        ],
+                                      ),
+                                    ],
+                                  )),
+                              onTap: () {
+                                if (list[indey]['live'] != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Room(
+                                        liveRoomInfo: list[indey],
+                                      ),
                                     ),
-                                  ],
-                                )),
-                            onTap: () {
-                              if (list[indey]['live'] != null) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Room(
-                                      liveRoomInfo: list[indey],
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                BrnToast.show('当前房间未在直播', context);
-                              }
-                            },
-                          );
-                  },
-                )),
-                loading == true
-                    ? const Text(
-                        '加载中...',
-                      )
-                    : Container(),
-                hasMore == false
-                    ? const Text(
-                        '已加载所有',
-                      )
-                    : Container(),
-              ],
-            ),
-          );
+                                  );
+                                } else {
+                                  BrnToast.show('当前房间未在直播', context,
+                                      duration: const Duration(seconds: 1));
+                                }
+                              },
+                            );
+                    },
+                  )),
+                  loading == true
+                      ? const Text(
+                          '加载中...',
+                        )
+                      : Container(),
+                  hasMore == false
+                      ? const Text(
+                          '已加载所有',
+                        )
+                      : Container(),
+                ],
+              );
+            }),
+        onRefresh: () async {
+          await refreshData();
+          if (context.mounted) {
+            BrnToast.show('刷新成功', context,
+                duration: const Duration(seconds: 1));
+          }
         });
   }
 }

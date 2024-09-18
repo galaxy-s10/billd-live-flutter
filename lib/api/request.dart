@@ -21,6 +21,7 @@ class HttpRequest {
               headers: {'Authorization': 'Bearer ${store.token}'}));
       return resp.data;
     } catch (e) {
+      billdPrint('dio错误', e);
       rethrow;
     }
   }

@@ -65,7 +65,7 @@ class AreaListState extends State<AreaList> {
         });
       }
     } catch (e) {
-      billdPrint(e);
+      billdPrint('getData错误', e);
       setState(() {
         err = true;
       });
@@ -73,7 +73,7 @@ class AreaListState extends State<AreaList> {
     setState(() {
       loading = false;
     });
-    if (err && context.mounted) {
+    if (err && mounted) {
       var errmsg = res?['message'];
       errmsg ??= networkErrorMsg;
       BrnToast.show(errmsg, context);
@@ -150,7 +150,7 @@ class AreaListState extends State<AreaList> {
         nowPage = 1;
         await getData();
         if (context.mounted) {
-          BrnToast.show('刷新成功', context);
+          BrnToast.show('刷新成功', context, duration: const Duration(seconds: 1));
         }
       },
     )));

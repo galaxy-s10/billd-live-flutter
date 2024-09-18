@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 
 import 'package:billd_live_flutter/api/live_api.dart';
 import 'package:billd_live_flutter/const.dart';
-import 'package:billd_live_flutter/enum.dart';
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:billd_live_flutter/utils/index.dart';
 
@@ -45,9 +44,7 @@ class HomeState extends State<Home> {
       }
     });
     currentItemIndex.addListener(() async {
-      billdPrint(
-        'currentItemIndex变了',
-      );
+      billdPrint('currentItemIndex变了');
       await playVideo(handlePlayUrl(
           livedata['rows']?[currentItemIndex.value]?['live_room'], 'hls'));
     });
@@ -76,12 +73,12 @@ class HomeState extends State<Home> {
         });
       }
     } catch (e) {
-      billdPrint(e);
+      billdPrint('getData错误', e);
       setState(() {
         err = true;
       });
     }
-    if (err && context.mounted) {
+    if (err && mounted) {
       var errmsg = res?['message'];
       errmsg ??= networkErrorMsg;
       BrnToast.show(errmsg, context);
@@ -93,7 +90,7 @@ class HomeState extends State<Home> {
       if (url.isEmpty) return;
       await stopVideo();
       String newurl = url.replaceAll('localhost', localIp);
-      billdPrint('newurl:$newurl');
+      billdPrint('newurl', newurl);
       var res = VideoPlayerController.networkUrl(Uri.parse(newurl),
           videoPlayerOptions: VideoPlayerOptions());
       _controller = res;
@@ -105,10 +102,9 @@ class HomeState extends State<Home> {
         loading = false;
       });
     } catch (e) {
-      billdPrint('播放错误');
-      billdPrint(e);
-      if (context.mounted) {
-        BrnToast.show('播放错误', context);
+      billdPrint('播放错误', e);
+      if (mounted) {
+        BrnToast.show('播放错误', context, duration: const Duration(seconds: 1));
       }
     }
   }
@@ -127,7 +123,7 @@ class HomeState extends State<Home> {
   Widget build(BuildContext context) {
     if (err) {
       return const Text(
-        '首页数据加载失败',
+        '首页数据加载错误',
         style: TextStyle(
           fontSize: 20,
         ),
@@ -206,7 +202,8 @@ class HomeState extends State<Home> {
                               child: Container(
                                 height: 50,
                                 // color: Colors.red,
-                                margin: const EdgeInsets.fromLTRB(0, 0, 20, 20),
+                                margin: const EdgeInsets.fromLTRB(0, 0, 20, 90),
+
                                 child: Column(children: [
                                   Image.asset(
                                     "assets/images/home/sync.png",
@@ -233,7 +230,7 @@ class HomeState extends State<Home> {
                             child: GestureDetector(
                               child: Container(
                                 height: 50,
-                                margin: const EdgeInsets.fromLTRB(0, 0, 20, 90),
+                                margin: const EdgeInsets.fromLTRB(0, 0, 20, 20),
                                 child: Column(children: [
                                   Image.asset(
                                     "assets/images/home/reload.png",
@@ -248,11 +245,11 @@ class HomeState extends State<Home> {
                                   ),
                                 ]),
                               ),
-                              onTap: () async {
-                                if (!err) {
-                                  if (context.mounted) {
-                                    BrnToast.show('更新直播列表成功', context);
-                                  }
+                              onTap: () {
+                                initFirstVideo();
+                                if (mounted) {
+                                  BrnToast.show('更新直播列表成功', context,
+                                      duration: const Duration(seconds: 1));
                                 }
                               },
                             )),

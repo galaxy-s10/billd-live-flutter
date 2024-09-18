@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:billd_live_flutter/api/live_api.dart';
 import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/enum.dart';
 import 'package:billd_live_flutter/stores/app.dart';
@@ -23,7 +24,7 @@ class Room extends StatefulWidget {
   State<StatefulWidget> createState() => RankState();
 }
 
-class RankState extends State<Room> {
+class RankState extends State<Room> with TickerProviderStateMixin {
   final Controller store = get_x.Get.put(Controller());
   MediaStream? _stream;
   RTCVideoRenderer? _remoteRenderer;
@@ -39,11 +40,28 @@ class RankState extends State<Room> {
   var timer;
   var receiver;
   var videoRatio = normalVideoRatio;
+  var videoWidth = 200.0;
+  var videoHeight = 300.0;
+  var videoBox = {'width': 0.0, 'height': 0.0};
   var loading = false;
+  var showRtc = false;
+  var tabIndex = 0;
+
+  var onlineUserList = [];
+  var onlineUserTimer;
+
+  final List<BadgeTab> tabs = [
+    BadgeTab(text: "聊天"),
+    BadgeTab(text: "直播间信息"),
+    BadgeTab(text: "在线用户"),
+  ];
+  TabController? tabController;
 
   @override
   initState() {
     super.initState();
+    videoWidth = store.screenWidth.value;
+    tabController = TabController(length: tabs.length, vsync: this);
     timer = Timer.periodic(const Duration(seconds: 2), (timer) {
       billdPrint('3634732134');
     });
@@ -51,10 +69,9 @@ class RankState extends State<Room> {
     liveRoomId = widget.liveRoomInfo['id'];
     hlsurl = handlePlayUrl(widget.liveRoomInfo, 'hls');
     flvurl = handlePlayUrl(widget.liveRoomInfo, 'flv');
-    avatar = widget.liveRoomInfo['users'][0]['avatar'];
-    username = widget.liveRoomInfo['users'][0]['username'];
-    handleStream();
-    billdPrint('liveRoomInfoliveRoomInfo', liveRoomInfo);
+    avatar = widget.liveRoomInfo?['users']?[0]?['avatar'] ?? '';
+    username = widget.liveRoomInfo?['users']?[0]?['username'] ?? '';
+    loopGetliveRoomOnlineUser();
     if ([
       liveRoomTypeEnum['system'],
       liveRoomTypeEnum['srs'],
@@ -65,12 +82,16 @@ class RankState extends State<Room> {
       liveRoomTypeEnum['tencent_css_pk'],
     ].contains(liveRoomInfo['type'])) {
       playVideo(hlsurl);
+    } else {
+      showRtc = true;
+      handleStream();
     }
   }
 
   @override
   void dispose() {
-    timer.cancel();
+    timer?.cancel();
+    onlineUserTimer?.cancel();
     stopVideo();
     if (ws != null) {
       ws?.socket.off(wsMsgTypeEnum['connect']!);
@@ -98,10 +119,13 @@ class RankState extends State<Room> {
   }
 
   handleStream() async {
-    await startForegroundService();
     try {
-      var stream = await navigator.mediaDevices.getDisplayMedia({
-        'video': true,
+      var stream = await navigator.mediaDevices.getUserMedia({
+        'video': {
+          'mandatory': {
+            'facingMode': 'user', // 指定前置摄像头
+          },
+        },
         'audio': true,
       });
       setState(() {
@@ -109,9 +133,8 @@ class RankState extends State<Room> {
       });
       handleInitWs();
     } catch (e) {
-      billdPrint('报错了');
-      billdPrint(e);
-      if (context.mounted) {
+      billdPrint('handleStream错误', e);
+      if (mounted) {
         BrnToast.show('拒绝授权', context);
       }
     }
@@ -233,18 +256,27 @@ class RankState extends State<Room> {
       String newurl = url.replaceAll('localhost', localIp);
       var res = VideoPlayerController.networkUrl(Uri.parse(newurl),
           videoPlayerOptions: VideoPlayerOptions());
-      _controller = res;
       setState(() {});
       await res.initialize();
       await res.play();
-      videoRatio = res.value.aspectRatio;
+      _controller = res;
+      var res2 = computedBox(
+          width: res.value.size.width,
+          height: res.value.size.height,
+          maxWidth: videoWidth,
+          minWidth: videoWidth,
+          maxHeight: videoHeight,
+          minHeight: videoHeight);
+      videoBox['width'] = res2['width'];
+      videoBox['height'] = res2['height'];
+      videoRatio = res.value.size.aspectRatio;
       setState(() {
         loading = false;
       });
     } catch (e) {
-      billdPrint(e);
-      if (context.mounted) {
-        BrnToast.show('播放错误', context);
+      billdPrint('播放错误', e);
+      if (mounted) {
+        BrnToast.show('播放错误', context, duration: const Duration(seconds: 1));
       }
     }
   }
@@ -254,6 +286,36 @@ class RankState extends State<Room> {
       await _controller!.dispose();
       _controller = null;
     }
+  }
+
+  getData() async {
+    var res;
+    var err = false;
+    try {
+      var res =
+          await LiveApi.getliveRoomOnlineUser({'live_room_id': liveRoomId});
+      if (res['code'] == 200) {
+        setState(() {
+          onlineUserList = res['data'];
+        });
+      } else {
+        err = true;
+      }
+    } catch (e) {
+      billdPrint('getData错误', e);
+      err = true;
+    }
+    if (err && mounted) {
+      var errmsg = res?['message'];
+      errmsg ??= networkErrorMsg;
+      BrnToast.show(errmsg, context);
+    }
+  }
+
+  loopGetliveRoomOnlineUser() {
+    onlineUserTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      getData();
+    });
   }
 
   @override
@@ -267,7 +329,7 @@ class RankState extends State<Room> {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+            padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
             child: Row(
               children: [
                 avatar == ''
@@ -296,46 +358,152 @@ class RankState extends State<Room> {
               ],
             ),
           ),
-          loading
-              ? const Center(
-                  child: Text(
-                    '加载中...',
-                    style: TextStyle(
-                      color: themeColor,
-                      fontSize: 20,
-                    ),
+          Container(
+            color: Colors.white,
+            width: videoWidth,
+            height: videoHeight,
+            alignment: Alignment.center, // 垂直和水平居中
+            child: showRtc
+                ? Container(
+                    child: _remoteRenderer != null
+                        ? RTCVideoView(
+                            _remoteRenderer!,
+                            objectFit: RTCVideoViewObjectFit
+                                .RTCVideoViewObjectFitContain,
+                          )
+                        : const Text(
+                            '加载中...',
+                            style: TextStyle(color: themeColor),
+                          ),
+                  )
+                : Container(
+                    child: _controller != null
+                        ? SizedBox(
+                            width: videoBox['width'],
+                            height: videoBox['height'],
+                            child: VideoPlayer(_controller!),
+                          )
+                        : const Text(
+                            '加载中...',
+                            style: TextStyle(color: themeColor),
+                          ),
                   ),
-                )
-              : _controller != null
-                  ? AspectRatio(
-                      aspectRatio: videoRatio,
-                      child: VideoPlayer(_controller!),
-                    )
-                  : Container(
-                      color: Colors.white,
+          ),
+          BrnTabBar(
+            tabs: tabs,
+            // tabWidth: 100,
+            controller: tabController,
+            backgroundcolor: const Color.fromRGBO(12, 22, 34, 1),
+            unselectedLabelColor: Colors.white,
+            indicatorColor: themeColor,
+            labelColor: themeColor,
+            mode: BrnTabBarBadgeMode.origin,
+            onTap: (state, index) {
+              billdPrint(state, index);
+              setState(() {
+                tabIndex = index;
+              });
+            },
+          ),
+          tabIndex == 0 ? Container() : Container(),
+          tabIndex == 1
+              ? Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          '名称：',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          liveRoomInfo['name'] ?? '',
+                          style: const TextStyle(color: Colors.white),
+                        )
+                      ],
                     ),
-          GestureDetector(
-            child: Text(
-              liveRoomTypeEnumMap[liveRoomInfo['type']]!,
-              style: TextStyle(color: themeColor, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {},
-          ),
-          GestureDetector(
-            child: Text(
-              id,
-              style: TextStyle(color: themeColor, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {},
-          ),
-          SizedBox(
-              height: 200,
-              width: 200,
-              child: _remoteRenderer != null
-                  ? RTCVideoView(
-                      _remoteRenderer!,
+                    Row(
+                      children: [
+                        const Text(
+                          '简介：',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          liveRoomInfo['desc'] ?? '',
+                          style: const TextStyle(color: Colors.white),
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          '分区：',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          liveRoomInfo['areas']?[0]?['name'] ?? '',
+                          style: const TextStyle(color: Colors.white),
+                        )
+                      ],
                     )
-                  : Container()),
+                  ],
+                )
+              : Container(),
+          tabIndex == 2
+              ? onlineUserList.isEmpty
+                  ? const Text(
+                      '暂无',
+                      style: TextStyle(color: Colors.white),
+                    )
+                  : Column(
+                      children: [
+                        ...onlineUserList.map((item) {
+                          return Container(
+                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                            child: Row(
+                              children: [
+                                item['value']?['userInfo'] == null
+                                    ? Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                            0, 0, 5, 0),
+                                        width: 30,
+                                        height: 30,
+                                        decoration: const BoxDecoration(
+                                          color: themeColor,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20)),
+                                        ),
+                                      )
+                                    : Container(
+                                        width: 30,
+                                        height: 30,
+                                        margin: const EdgeInsets.fromLTRB(
+                                            0, 0, 5, 0),
+                                        child: CircleAvatar(
+                                          backgroundImage: billdNetworkImage(
+                                              item['value']?['userInfo']
+                                                      ?['avatar'] ??
+                                                  ''),
+                                        )),
+                                item['value']?['userInfo'] == null
+                                    ? Text(
+                                        item['value']['socketId'],
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      )
+                                    : Text(
+                                        item['value']?['userInfo']
+                                                ?['username'] ??
+                                            '',
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      )
+                              ],
+                            ),
+                          );
+                        })
+                      ],
+                    )
+              : Container()
         ],
       ),
     )));

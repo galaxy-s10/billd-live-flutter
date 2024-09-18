@@ -41,11 +41,14 @@ class UserState extends State<User> {
           ? Container(
               padding: const EdgeInsets.all(20),
               child: Column(children: [
-                store.userInfo['avatar'] == ''
+                store.userInfo['avatar'] == null ||
+                        store.userInfo['avatar'] == ''
                     ? Container(
+                        width: 100,
+                        height: 100,
                         decoration: const BoxDecoration(
                           color: themeColor,
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          borderRadius: BorderRadius.all(Radius.circular(50)),
                         ),
                       )
                     : CircleAvatar(
@@ -90,7 +93,8 @@ class UserState extends State<User> {
                         onCancel: () => {Navigator.pop(context)},
                         onConfirm: () {
                           setState(() {
-                            BrnToast.show('退出登录成功', context);
+                            BrnToast.show('退出登录成功', context,
+                                duration: const Duration(seconds: 1));
                             isLogin = false;
                             store.setToken('');
                             store.setUserInfo({});
@@ -149,11 +153,13 @@ class UserState extends State<User> {
                       title: '登录',
                       onTap: () async {
                         if (id == null || password == null) {
-                          BrnToast.show('请输入完整', context);
+                          BrnToast.show('请输入完整', context,
+                              duration: const Duration(seconds: 1));
                           return;
                         }
                         if (password!.length < 6 || password!.length > 10) {
-                          BrnToast.show('密码长度要求6-10位', context);
+                          BrnToast.show('密码长度要求6-10位', context,
+                              duration: const Duration(seconds: 1));
                           return;
                         }
                         var res;
@@ -163,7 +169,7 @@ class UserState extends State<User> {
                               id: id!, password: password!);
                           if (res['code'] != 200) {
                             if (context.mounted) {
-                              BrnToast.show(res['message'], context);
+                              BrnToast.show(res?['message'], context);
                             }
                             return;
                           }
@@ -171,7 +177,8 @@ class UserState extends State<User> {
                           var res1 = await UserApi.getUserInfo();
                           if (res1['code'] == 200) {
                             if (context.mounted) {
-                              BrnToast.show('登录成功', context);
+                              BrnToast.show('登录成功', context,
+                                  duration: const Duration(seconds: 1));
                             }
                             store.setUserInfo(res1['data']);
                             setState(() {
@@ -179,16 +186,17 @@ class UserState extends State<User> {
                             });
                           } else {
                             if (context.mounted) {
-                              BrnToast.show(res['message'], context);
+                              var errmsg = res?['message'];
+                              errmsg ??= networkErrorMsg;
+                              BrnToast.show(errmsg, context);
                             }
                           }
                         } catch (e) {
                           billdPrint(e);
-                          var msg = res?['message'];
-                          if (msg is String) {
-                            BrnToast.show(msg, context);
-                          } else {
-                            BrnToast.show(networkErrorMsg, context);
+                          if (context.mounted) {
+                            var errmsg = res?['message'];
+                            errmsg ??= networkErrorMsg;
+                            BrnToast.show(errmsg, context);
                           }
                         } finally {
                           BilldLoading.stop();

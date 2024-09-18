@@ -7,7 +7,6 @@ class WsClass {
   late ws.Socket socket;
 
   WsClass() {
-    billdPrint('newwwww');
     socket = ws.io(
         websocketUrl,
         ws.OptionBuilder()
@@ -17,25 +16,21 @@ class WsClass {
     socket.connect();
   }
   init() {
-    billdPrint('===init===$websocketUrl');
+    billdPrint('===init===', websocketUrl);
     socket.onConnect((data) {
-      billdPrint('===onConnect===,$data,${socket.id}');
+      billdPrint('===onConnect===,${socket.id}', data);
     });
     socket.on(wsMsgTypeEnum['message']!, (data) {
-      billdPrint('===message===,$data');
-      billdPrint(data);
+      billdPrint('===message===', data);
     });
     socket.on(wsMsgTypeEnum['joined']!, (data) {
-      billdPrint('===joined===,$data');
-      billdPrint(data);
+      billdPrint('===joined===', data);
     });
     socket.on(wsMsgTypeEnum['batchSendOffer']!, (data) {
-      billdPrint('===batchSendOffer===,$data');
-      billdPrint(data);
+      billdPrint('===batchSendOffer===', data);
     });
     socket.onDisconnect((data) {
-      billdPrint('===onDisconnect===');
-      billdPrint(data);
+      billdPrint('===onDisconnect===', data);
     });
   }
 
@@ -45,14 +40,10 @@ class WsClass {
   }
 
   send(String msgType, String requestId, dynamic data) {
-    billdPrint('===send===', msgType);
-    billdPrint('===senddata ===', data);
-    // request_id: requestId,
-    // socket_id: this.socketIo.id,
-    // is_anchor: this.isAnchor,
-    // user_info: userStore.userInfo,
-    // user_token: userStore.token || undefined,
-    // data: data || {},
+    billdPrint(
+      '===send===,$msgType',
+      data,
+    );
     var sendData = {
       'request_id': requestId,
       'socket_id': socket.id,
