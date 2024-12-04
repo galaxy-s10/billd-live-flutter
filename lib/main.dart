@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:billd_live_flutter/const.dart';
 import 'package:billd_live_flutter/stores/app.dart';
-import 'package:billd_live_flutter/utils/index.dart';
 import 'package:billd_live_flutter/views/home/home.dart';
 import 'package:billd_live_flutter/views/live/live.dart';
 import 'package:billd_live_flutter/views/rank/rank.dart';

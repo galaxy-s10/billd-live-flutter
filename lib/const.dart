@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:billd_live_flutter/enum.dart';
 import 'package:flutter/services.dart';
 
-// const localIp = '192.168.1.101';
-const localIp = '192.168.12.83';
+const localIp = '192.168.1.100';
+// const localIp = '192.168.12.83';
 const appTitle = 'billd直播';
 const themeColor = Color.fromRGBO(255, 215, 0, 1);
 
