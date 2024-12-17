@@ -1,0 +1,29 @@
+{
+  "name": "billd-live-flutter-pro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "billd-live的flutter客户端",
+  "keywords": [
+    "billd",
+    "live",
+    "bilibili",
+    "flutter",
+    "webrtc"
+  ],
+  "bugs": {
+    "url": "https://github.com/billd-project/billd-live-flutter-pro/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/billd-project/billd-live-flutter-pro"
+  },
+  "license": "MIT",
+  "author": "shuisheng <2274751790@qq.com>",
+  "scripts": {
+    "sync-repo": "ts-node ./deploy/handleSyncPublic.mjs"
+  },
+  "devDependencies": {
+    "ts-node": "^10.4.0",
+    "trash": "^8.1.1"
+  }
+}
