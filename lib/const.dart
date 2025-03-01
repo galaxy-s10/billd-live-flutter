@@ -3,15 +3,14 @@ import 'dart:ui';
 import 'package:billd_live_flutter/enum.dart';
 import 'package:flutter/services.dart';
 
-const localIp = '192.168.1.100';
-// const localIp = '192.168.12.83';
+const localIp = '192.168.1.102';
 const appTitle = 'billd直播';
 const themeColor = Color.fromRGBO(255, 215, 0, 1);
 
-// const axiosBaseUrl = 'https://live-api.hsslive.cn';
-// const websocketUrl = 'wss://srs-pull.hsslive.cn';
-const axiosBaseUrl = 'http://$localIp:4300';
-const websocketUrl = 'ws://$localIp:4300';
+const axiosBaseUrl = 'https://live-api.hsslive.cn';
+const websocketUrl = 'wss://srs-pull.hsslive.cn';
+// const axiosBaseUrl = 'http://$localIp:4300';
+// const websocketUrl = 'ws://$localIp:4300';
 const axiosTimeoutSeconds = 3;
 
 const normalVideoRatio = 16 / 9;
@@ -26,8 +25,8 @@ var liveRoomTypeEnumMap = {
   liveRoomTypeEnum['pk']: '打pk',
   liveRoomTypeEnum['srs']: 'srs推流',
   liveRoomTypeEnum['system']: '系统推流',
-  liveRoomTypeEnum['tencent_css']: '腾讯云css推流',
-  liveRoomTypeEnum['tencent_css_pk']: '腾讯云css打pk',
+  liveRoomTypeEnum['tencentcloud_css']: '腾讯云css推流',
+  liveRoomTypeEnum['tencentcloud_css_pk']: '腾讯云css打pk',
   liveRoomTypeEnum['wertc_live']: 'webrtc直播',
   liveRoomTypeEnum['wertc_meeting_one']: 'webrtc会议一',
   liveRoomTypeEnum['wertc_meeting_two']: 'webrtc会议二',
