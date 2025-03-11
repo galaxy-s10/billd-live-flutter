@@ -8,12 +8,17 @@ import 'package:billd_live_flutter/views/rank/rank.dart';
 import 'package:billd_live_flutter/views/area/area.dart';
 import 'package:billd_live_flutter/views/user/user.dart';
 import 'package:bruno/bruno.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-void main() {
+void main() async {
+  final Controller store = Get.put(Controller());
+  WidgetsFlutterBinding.ensureInitialized();
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  store.appInfo.value = packageInfo;
   runApp(const MyApp());
 }
 

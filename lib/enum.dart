@@ -69,3 +69,21 @@ const liveRoomTypeEnum = {
   /** 转推所有 */
   'forward_all': 17,
 };
+
+const clientEnvEnum = {
+  'android': 0,
+  'ios': 1,
+  'ipad': 2,
+  'web': 3,
+  'web_mobile': 4,
+  'web_pc': 5,
+  'windows': 6,
+  'macos': 7,
+};
+
+const clientAppEnum = {
+  'billd_live_android_app': 0,
+  'billd_live_ios_app': 1,
+  'billd_live_web': 2,
+  'billd_live_admin': 3,
+};

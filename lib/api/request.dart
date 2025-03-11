@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:billd_live_flutter/const.dart';
+import 'package:billd_live_flutter/enum.dart';
 import 'package:get/get.dart' as get_x;
 import 'package:billd_live_flutter/stores/app.dart';
 import 'package:dio/dio.dart';
@@ -10,15 +13,33 @@ class HttpRequest {
       connectTimeout: const Duration(seconds: axiosTimeoutSeconds));
   static Dio dio = Dio(baseOptions);
 
-  static Future get(url, {Map<String, dynamic>? params}) async {
-    final Controller store = get_x.Get.put(Controller());
+  static Map<String, dynamic> getHeaders() {
+    final Controller store = get_x.Get.find<Controller>();
 
+    var env = -1;
+    var app = -1;
+
+    if (Platform.isAndroid) {
+      env = clientEnvEnum['android'] ?? -1;
+      app = clientAppEnum['billd_live_android_app'] ?? -1;
+    } else if (Platform.isIOS) {
+      env = clientEnvEnum['ios'] ?? -1;
+      app = clientAppEnum['billd_live_ios_app'] ?? -1;
+    }
+
+    return {
+      'Authorization': 'Bearer ${store.token}',
+      'X-Clientenv': env,
+      'X-Clientapp': app,
+      'X-Clientappver': store.appInfo.value.version
+    };
+  }
+
+  static Future get(url, {Map<String, dynamic>? params}) async {
     try {
       var resp = await dio.request(url,
           queryParameters: params,
-          options: Options(
-              method: 'get',
-              headers: {'Authorization': 'Bearer ${store.token}'}));
+          options: Options(method: 'get', headers: getHeaders()));
       return resp.data;
     } catch (e) {
       billdPrint('dio错误', e);
@@ -28,7 +49,6 @@ class HttpRequest {
 
   static Future post(url, {Map<String, dynamic>? data}) async {
     try {
-      final Controller store = get_x.Get.put(Controller());
       dio.interceptors.add(
         InterceptorsWrapper(
           onRequest:
@@ -51,10 +71,7 @@ class HttpRequest {
         ),
       );
       var resp = await dio.request(url,
-          data: data,
-          options: Options(
-              method: 'post',
-              headers: {'Authorization': 'Bearer ${store.token}'}));
+          data: data, options: Options(method: 'post', headers: getHeaders()));
       return resp.data;
     } catch (e) {
       rethrow;
