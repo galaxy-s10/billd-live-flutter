@@ -1,4 +1,4 @@
-import 'package:billd_live_flutter/api/request.dart';
+import 'package:billd_live_flutter/utils/request.dart';
 
 class SRSApi {
   static getRtcV1Publish({api, sdp, streamurl, tid}) async {

@@ -71,19 +71,19 @@ const liveRoomTypeEnum = {
 };
 
 const clientEnvEnum = {
-  'android': 0,
-  'ios': 1,
-  'ipad': 2,
-  'web': 3,
-  'web_mobile': 4,
-  'web_pc': 5,
-  'windows': 6,
-  'macos': 7,
+  'android': 'android',
+  'ios': 'ios',
+  'ipad': 'ipad',
+  'web': 'web',
+  'web_mobile': 'web_mobile',
+  'web_pc': 'web_pc',
+  'windows': 'windows',
+  'macos': 'macos',
 };
 
 const clientAppEnum = {
-  'billd_live_android_app': 0,
-  'billd_live_ios_app': 1,
-  'billd_live_web': 2,
-  'billd_live_admin': 3,
+  'billd_live': 'billd_live',
+  'billd_live_admin': 'billd_live_admin',
+  'billd_desk': 'billd_desk',
+  'billd_desk_admin': 'billd_desk_admin',
 };

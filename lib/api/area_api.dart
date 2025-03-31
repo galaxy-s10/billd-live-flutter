@@ -1,4 +1,4 @@
-import 'package:billd_live_flutter/api/request.dart';
+import 'package:billd_live_flutter/utils/request.dart';
 
 class AreaApi {
   static getAreaAreaLiveRoomList(params) async {
