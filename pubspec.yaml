@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.2+1
+version: 1.0.0+1
 
 environment:
   sdk: '>=3.1.4 <4.0.0'
@@ -35,29 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-  dio: ^5.4.3
-
-  permission_handler: ^11.0.1
-
-  flutter_webrtc: ^0.9.46
-
-  bruno: ^3.4.2
-
-  get: ^4.6.6
-
-  carousel_slider: ^4.2.1
-
-  video_player: ^2.8.1
-
-  flutter_background: ^1.2.0
-
-  flutter_launcher_icons: ^0.13.1
-
-  socket_io_client: ^2.0.3
-
-  audioplayers: ^5.2.1
-
-  package_info_plus: ^8.0.2
+  dio: ^5.3.3
 
 dev_dependencies:
   flutter_test:
@@ -74,11 +52,6 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
-
-flutter_launcher_icons:
-  android: 'launcher_icon'
-  image_path: 'assets/billd.jpeg'
-
 flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -95,10 +68,6 @@ flutter:
     - assets/images/tabbar/rank_active.png
     - assets/images/tabbar/user.png
     - assets/images/tabbar/user_active.png
-    - assets/images/home/reload.png
-    - assets/images/home/sync.png
-    - assets/images/home/switch.png
-    - assets/images/lazy_error.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
